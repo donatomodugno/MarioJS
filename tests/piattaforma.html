@@ -1,0 +1,18 @@
+<!--<!DOCTYPE html>-->
+<style>
+    body {
+        margin:0;
+    }
+</style>
+<script type="text/javascript">
+function setupCanvas() {
+  const canvas = document.getElementById('canvas')
+  const c = canvas.getContext('2d')
+  const img = new Image()
+  img.src = "../assets/platform.png"
+  img.onload = () => c.drawImage(img,100,100)
+  const music = new Audio("../assets/ssbb-waluigi.ogg")
+  music.play()
+}
+</script>
+<body onload="setupCanvas();"><canvas id="canvas" width="500" height="500"></canvas></body>

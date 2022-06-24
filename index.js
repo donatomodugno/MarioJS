@@ -1,7 +1,16 @@
+//import imgplatform from './platform.png'
+//console.log(imgplatform)
 const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
 canvas.width = innerWidth
 canvas.height = innerHeight
+const bw = 500 //bound width
+const bh = 800 //bound height
+const bthick = 50 //thickness
+
+const audiojump = new Audio("./assets/player-jump.ogg")
+const imgplatform = new Image()
+imgplatform.src = "./assets/platform.png"
 
 const gravity = 0.5
 const keys = {
@@ -35,7 +44,7 @@ class Player {
     update() {
         this.position.x += this.velocity.x
         this.position.y += this.velocity.y
-        if(this.position.y+this.height+this.velocity.y<=800/*canvas.height*/) this.velocity.y += gravity
+        if(this.position.y+this.height+this.velocity.y<=bh/*800*//*canvas.height*/) this.velocity.y += gravity
         else this.velocity.y = 0
         this.draw()
     }
@@ -52,17 +61,25 @@ class Platform {
     }
 
     draw() {
-        c.fillStyle = 'blue'
-        c.fillRect(this.position.x,this.position.y,this.width,this.height)
+        //c.fillStyle = 'blue'
+        //c.fillRect(this.position.x,this.position.y,this.width,this.height)
+        c.drawImage(imgplatform,0,0,this.width,this.height,this.position.x,this.position.y,this.width,this.height)
     }
+}
+
+function waluigi() {
+    const music = new Audio("./assets/ssbb-waluigi.ogg")
+    music.loop = true
+    music.volume = "0.2"
+    music.play()
 }
 
 function drawBounds() {
     c.fillStyle = 'black'
-    c.fillRect(0,0,50,850)
-    c.fillRect(500,0,50,850)
+    c.fillRect(0,0,bthick,bh+bthick)
+    c.fillRect(bthick+bw,0,bthick,bh+bthick)
     c.fillStyle = 'green'
-    c.fillRect(50,800,450,50)
+    c.fillRect(bthick,bh,bw,bthick)
 }
 
 const player = new Player()
@@ -74,9 +91,9 @@ function animate() {
     c.clearRect(0,0,canvas.width,canvas.height)
 
     //player
-    if(keys.right.pressed && player.position.x+player.width<500) {
+    if(keys.right.pressed && player.position.x+player.width<bthick+bw) {
         player.velocity.x = 5
-    } else if(keys.left.pressed && player.position.x>50) {
+    } else if(keys.left.pressed && player.position.x>bthick) {
         player.velocity.x = -5
     } else {
         player.velocity.x = 0
@@ -104,22 +121,29 @@ function animate() {
     drawBounds()
 }
 
+waluigi()
 animate()
+
+
+//// Event Listeners ////
 
 addEventListener('keydown',({key}) => {
     switch(key) {
-        case 'w':
+        case 'ArrowUp':
             //up
-            player.velocity.y = -10
+            if(player.velocity.y==0) {
+                player.velocity.y = -18//-10
+                audiojump.play()
+            }
             break
-        case 'a':
+        case 'ArrowLeft':
             //left
             keys.left.pressed = true
             break
-        case 's':
+        case 'ArrowDown':
             //down
             break
-        case 'd':
+        case 'ArrowRight':
             //right
             keys.right.pressed = true
             break
@@ -128,17 +152,17 @@ addEventListener('keydown',({key}) => {
 
 addEventListener('keyup',({key}) => {
     switch(key) {
-        case 'w':
+        case 'ArrowUp':
             //up
             break
-        case 'a':
+        case 'ArrowLeft':
             //left
             keys.left.pressed = false
             break
-        case 's':
+        case 'ArrowDown':
             //down
             break
-        case 'd':
+        case 'ArrowRight':
             //right
             keys.right.pressed = false
             break
