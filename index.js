@@ -1,18 +1,40 @@
-//import imgplatform from './platform.png'
-//console.log(imgplatform)
 const canvas = document.querySelector('canvas')
-const c = canvas.getContext('2d')
+const ctx = canvas.getContext('2d')
 canvas.width = innerWidth
 canvas.height = innerHeight
-const bw = 500 //bound width
-const bh = 800 //bound height
-const bthick = 50 //thickness
 
+//Constants
+const bw = 32*32//*24//500 //bound width
+const bh = 32*24//*18//800 //bound height
+const bthick = 50 //thickness
+const gravity = 0.5
+//Assets
 const audiojump = new Audio("./assets/player-jump.ogg")
 const imgplatform = new Image()
 imgplatform.src = "./assets/platform.png"
+const background = new Image()
+background.src = "./assets/background.png"
+const spriteblock = new Image()
+spriteblock.src = "./assets/block.png"
+const spritebridge = new Image()
+spritebridge.src = "./assets/bridge.png"
 
-const gravity = 0.5
+//Functions and classes
+function waluigi() {
+    const music = new Audio("./assets/ssbb-waluigi.ogg")
+    music.loop = true
+    music.volume = "0.2"
+    music.play()
+}
+
+function drawBounds() {
+    ctx.fillStyle = 'black'
+    ctx.fillRect(0,0,bthick,bh+bthick)
+    ctx.fillRect(bthick+bw,0,bthick,bh+bthick)
+    ctx.fillStyle = 'green'
+    ctx.fillRect(bthick,bh,bw,bthick)
+}
+
 const keys = {
     left: {
         pressed:false
@@ -32,20 +54,26 @@ class Player {
             x:0,
             y:1
         }
-        this.width = 30
-        this.height = 30
+        this.width = 32
+        this.height = 32
+        this.jumping = false
     }
 
     draw() {
-        c.fillStyle = 'red'
-        c.fillRect(this.position.x,this.position.y,this.width,this.height)
+        ctx.fillStyle = 'red'
+        ctx.fillRect(this.position.x,this.position.y,this.width,this.height)
+    }
+
+    lands() {
+        this.velocity.y = 0
+        this.jumping = false
     }
 
     update() {
         this.position.x += this.velocity.x
         this.position.y += this.velocity.y
         if(this.position.y+this.height+this.velocity.y<=bh/*800*//*canvas.height*/) this.velocity.y += gravity
-        else this.velocity.y = 0
+        else this.lands()
         this.draw()
     }
 }
@@ -56,39 +84,43 @@ class Platform {
             x,
             y
         }
-        this.width = 200
-        this.height = 20
+        this.width = 192
+        this.height = 32
     }
 
     draw() {
-        //c.fillStyle = 'blue'
-        //c.fillRect(this.position.x,this.position.y,this.width,this.height)
-        c.drawImage(imgplatform,0,0,this.width,this.height,this.position.x,this.position.y,this.width,this.height)
+        //ctx.fillStyle = 'blue'
+        //ctx.fillRect(this.position.x,this.position.y,this.width,this.height)
+        let i=0
+        for(i=0;i<6;i++) ctx.drawImage(spritebridge,0,0,this.width,this.height,this.position.x+i*32,this.position.y,this.width,this.height)
     }
 }
 
-function waluigi() {
-    const music = new Audio("./assets/ssbb-waluigi.ogg")
-    music.loop = true
-    music.volume = "0.2"
-    music.play()
-}
+class Block {
+    constructor({x,y}) {
+        this.position = {
+            x,
+            y
+        }
+        this.width = 32
+        this.height = 32
+    }
 
-function drawBounds() {
-    c.fillStyle = 'black'
-    c.fillRect(0,0,bthick,bh+bthick)
-    c.fillRect(bthick+bw,0,bthick,bh+bthick)
-    c.fillStyle = 'green'
-    c.fillRect(bthick,bh,bw,bthick)
+    draw() {
+        ctx.drawImage(spriteblock,0,0,this.width,this.height,this.position.x,this.position.y,this.width,this.height)
+    }
 }
 
 const player = new Player()
 const platforms = [new Platform({x:200,y:500}),new Platform({x:800,y:600})]
+const blocks = [new Block({x:200,y:200}),new Block({x:700,y:600}),new Block({x:700,y:632}),new Block({x:700,y:664})]
 let scrollOffset = 0
 
 function animate() {
     requestAnimationFrame(animate)
-    c.clearRect(0,0,canvas.width,canvas.height)
+    ctx.clearRect(0,0,canvas.width,canvas.height)
+    ctx.fillStyle = '#ddd'
+    ctx.fillRect(0,0,bw+bthick,bh)
 
     //player
     if(keys.right.pressed && player.position.x+player.width<bthick+bw) {
@@ -100,9 +132,11 @@ function animate() {
         if(keys.right.pressed) {
             scrollOffset += 5
             platforms.forEach(p => p.position.x -= 5)
+            blocks.forEach(b => b.position.x -= 5)
         } else if(keys.left.pressed) {
             scrollOffset -= 5
             platforms.forEach(p => p.position.x += 5)
+            blocks.forEach(b => b.position.x += 5)
         }
     }
 
@@ -110,7 +144,23 @@ function animate() {
     platforms.forEach(p => {
         if(player.position.y+player.height<=p.position.y && player.position.y+player.height+player.velocity.y>=p.position.y)
             if(player.position.x+player.width>=p.position.x && player.position.x<=p.position.x+p.width)
-                player.velocity.y = 0
+                player.lands()
+    })
+
+    //block collision
+    blocks.forEach(b => {
+        if(player.position.y+player.height<=b.position.y && player.position.y+player.height+player.velocity.y>=b.position.y)
+            if(player.position.x+player.width>=b.position.x && player.position.x<=b.position.x+b.width)
+                player.lands()
+        if(player.position.y>=b.position.y+b.height && player.position.y+player.velocity.y<=b.position.y+b.height)
+            if(player.position.x+player.width>=b.position.x && player.position.x<=b.position.x+b.width)
+                player.lands()
+        if(player.position.x+player.width<=b.position.x && player.position.x+player.width+player.velocity.x>=b.position.x)
+            if(player.position.y+player.height>=b.position.y && player.position.y<=b.position.y+b.height)
+                player.velocity.x = 0
+        if(player.position.x>=b.position.x+b.width && player.position.x+player.velocity.x<=b.position.x+b.width)
+            if(player.position.y+player.height>=b.position.y && player.position.y<=b.position.y+b.height)
+                player.velocity.x = 0
     })
 
     //win scenario
@@ -118,6 +168,7 @@ function animate() {
     
     player.update()
     platforms.forEach(p => p.draw())
+    blocks.forEach(b => b.draw())
     drawBounds()
 }
 
@@ -131,8 +182,9 @@ addEventListener('keydown',({key}) => {
     switch(key) {
         case 'ArrowUp':
             //up
-            if(player.velocity.y==0) {
+            if(!player.jumping) {
                 player.velocity.y = -18//-10
+                player.jumping = true
                 audiojump.play()
             }
             break
