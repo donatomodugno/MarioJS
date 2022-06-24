@@ -4,9 +4,12 @@ canvas.width = innerWidth
 canvas.height = innerHeight
 
 //Constants
-const bw = 32*32//*24//500 //bound width
-const bh = 32*24//*18//800 //bound height
+const bw = 32*24//*32//500 //bound width
+const bh = 32*18//*24//800 //bound height
 const bthick = 50 //thickness
+const bx = (canvas.width-bw)/2-bthick
+const by = bthick
+const scrollthick = 120
 const gravity = 0.5
 //Assets
 const audiojump = new Audio("./assets/player-jump.ogg")
@@ -29,10 +32,13 @@ function waluigi() {
 
 function drawBounds() {
     ctx.fillStyle = 'black'
-    ctx.fillRect(0,0,bthick,bh+bthick)
-    ctx.fillRect(bthick+bw,0,bthick,bh+bthick)
-    ctx.fillStyle = 'green'
-    ctx.fillRect(bthick,bh,bw,bthick)
+    ctx.fillRect(bx,by,bthick,bh+bthick)
+    ctx.fillRect(bx+bthick+bw,by,bthick,bh+bthick)
+    //ctx.fillStyle = 'green'
+    ctx.fillRect(bx+bthick,by+bh,bw,bthick)
+    ctx.fillRect(bx+bthick,by,bw,bthick)
+    ctx.clearRect(0,0,bx,canvas.height)
+    ctx.clearRect(bx+bw+bthick*2,0,canvas.width-bx,canvas.height)
 }
 
 const keys = {
@@ -47,7 +53,7 @@ const keys = {
 class Player {
     constructor() {
         this.position = {
-            x:100,
+            x:bx+100,
             y:100
         }
         this.velocity = {
@@ -64,7 +70,7 @@ class Player {
         ctx.fillRect(this.position.x,this.position.y,this.width,this.height)
     }
 
-    lands() {
+    land() {
         this.velocity.y = 0
         this.jumping = false
     }
@@ -72,8 +78,9 @@ class Player {
     update() {
         this.position.x += this.velocity.x
         this.position.y += this.velocity.y
-        if(this.position.y+this.height+this.velocity.y<=bh/*800*//*canvas.height*/) this.velocity.y += gravity
-        else this.lands()
+        // if(this.position.y+this.height+this.velocity.y<=bh/*800*//*canvas.height*/) this.velocity.y += gravity
+        // else this.land()
+        this.velocity.y += gravity
         this.draw()
     }
 }
@@ -112,20 +119,20 @@ class Block {
 }
 
 const player = new Player()
-const platforms = [new Platform({x:200,y:500}),new Platform({x:800,y:600})]
-const blocks = [new Block({x:200,y:200}),new Block({x:700,y:600}),new Block({x:700,y:632}),new Block({x:700,y:664})]
+const platforms = [new Platform({x:bx+200,y:400}),new Platform({x:bx+800,y:500})]
+const blocks = [new Block({x:bx+200,y:200}),new Block({x:bx+700,y:500}),new Block({x:bx+700,y:532}),new Block({x:bx+700,y:564})]
 let scrollOffset = 0
 
 function animate() {
     requestAnimationFrame(animate)
     ctx.clearRect(0,0,canvas.width,canvas.height)
     ctx.fillStyle = '#ddd'
-    ctx.fillRect(0,0,bw+bthick,bh)
+    ctx.fillRect(bx,by,bw+bthick,bh)
 
     //player
-    if(keys.right.pressed && player.position.x+player.width<bthick+bw) {
+    if(keys.right.pressed && player.position.x+player.width<bx+bthick+bw-scrollthick) {
         player.velocity.x = 5
-    } else if(keys.left.pressed && player.position.x>bthick) {
+    } else if(keys.left.pressed && player.position.x>bx+bthick+scrollthick) {
         player.velocity.x = -5
     } else {
         player.velocity.x = 0
@@ -140,21 +147,25 @@ function animate() {
         }
     }
 
+    player.jumping = true
+    //TEMP floor collision
+    if(player.position.y+player.height<=by+bh && player.position.y+player.height+player.velocity.y>=by+bh) player.land()
+
     //platform collision
     platforms.forEach(p => {
         if(player.position.y+player.height<=p.position.y && player.position.y+player.height+player.velocity.y>=p.position.y)
             if(player.position.x+player.width>=p.position.x && player.position.x<=p.position.x+p.width)
-                player.lands()
+                player.land()
     })
 
     //block collision
     blocks.forEach(b => {
         if(player.position.y+player.height<=b.position.y && player.position.y+player.height+player.velocity.y>=b.position.y)
             if(player.position.x+player.width>=b.position.x && player.position.x<=b.position.x+b.width)
-                player.lands()
+                player.land()
         if(player.position.y>=b.position.y+b.height && player.position.y+player.velocity.y<=b.position.y+b.height)
             if(player.position.x+player.width>=b.position.x && player.position.x<=b.position.x+b.width)
-                player.lands()
+                player.velocity.y = 0
         if(player.position.x+player.width<=b.position.x && player.position.x+player.width+player.velocity.x>=b.position.x)
             if(player.position.y+player.height>=b.position.y && player.position.y<=b.position.y+b.height)
                 player.velocity.x = 0
@@ -170,6 +181,7 @@ function animate() {
     platforms.forEach(p => p.draw())
     blocks.forEach(b => b.draw())
     drawBounds()
+    console.log(player.position.x,player.position.y)
 }
 
 waluigi()
@@ -183,8 +195,8 @@ addEventListener('keydown',({key}) => {
         case 'ArrowUp':
             //up
             if(!player.jumping) {
-                player.velocity.y = -18//-10
                 player.jumping = true
+                player.velocity.y = -16//-18//-10
                 audiojump.play()
             }
             break
