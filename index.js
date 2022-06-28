@@ -4,12 +4,16 @@ canvas.width = innerWidth
 canvas.height = innerHeight
 
 //Constants
-const bw = 32*24//*32//500 //bound width
-const bh = 32*18//*24//800 //bound height
-const bthick = 50 //thickness
+const blocksize = 32
+const blockcols = 24//*32
+const blockrows = 18//*24
+const bw = blocksize*blockcols//500 //bound width
+const bh = blocksize*blockrows//800 //bound height
+const bthick = 20 //thickness
 const bx = (canvas.width-bw)/2-bthick
-const by = bthick
-const scrollthick = 120
+const by = bthick*2
+const scrollthick = blocksize*4
+const speed = 5
 const gravity = 0.5
 //Assets
 const audiojump = new Audio("./assets/player-jump.ogg")
@@ -32,13 +36,28 @@ function waluigi() {
 
 function drawBounds() {
     ctx.fillStyle = 'black'
-    ctx.fillRect(bx,by,bthick,bh+bthick)
-    ctx.fillRect(bx+bthick+bw,by,bthick,bh+bthick)
-    //ctx.fillStyle = 'green'
-    ctx.fillRect(bx+bthick,by+bh,bw,bthick)
-    ctx.fillRect(bx+bthick,by,bw,bthick)
-    ctx.clearRect(0,0,bx,canvas.height)
-    ctx.clearRect(bx+bw+bthick*2,0,canvas.width-bx,canvas.height)
+    ctx.fillRect(bx-bthick,by-bthick,bthick,bh+bthick*2) //Left
+    ctx.fillRect(bx+bw,by-bthick,bthick,bh+bthick*2) //Right
+    ctx.fillRect(bx,by+bh,bw,bthick) //Floor
+    ctx.fillRect(bx,by-bthick,bw,bthick) //Ceil
+    // ctx.fillRect(bx-bthick,by-bthick,bw+bthick*2,bh+bthick*2)
+}
+
+function drawGrid(scrollOffset) {
+    const gridOffset = -scrollOffset%blocksize
+    ctx.fillStyle = "#ccc"
+    for(let i=0;i<blockrows;i++) ctx.fillRect(bx,by+blocksize*i,bw+1,1)
+    for(let i=0;i<blockcols+1;i++) ctx.fillRect(bx+blocksize*i+gridOffset,by,1,bh)
+}
+
+function clearOutside() {
+    ctx.clearRect(0,0,bx-bthick,canvas.height)
+    ctx.clearRect(bx+bw+bthick,0,canvas.width-bx-bw-bthick,canvas.height)
+}
+
+function blockCoord(offset,pos,inverted) {
+    if(inverted) return offset-blocksize*(pos+1)
+    return offset+blocksize*pos
 }
 
 const keys = {
@@ -51,18 +70,19 @@ const keys = {
 }
 
 class Player {
-    constructor() {
+    constructor({x,y}) {
         this.position = {
-            x:bx+100,
-            y:100
+            x,
+            y
         }
         this.velocity = {
             x:0,
             y:1
         }
-        this.width = 32
-        this.height = 32
+        this.width = blocksize
+        this.height = blocksize*2
         this.jumping = false
+        this.colliding = false
     }
 
     draw() {
@@ -70,9 +90,16 @@ class Player {
         ctx.fillRect(this.position.x,this.position.y,this.width,this.height)
     }
 
-    land() {
+    land(pos,top) {
         this.velocity.y = 0
-        this.jumping = false
+        if(pos) this.position.y = top ? pos : pos-this.height
+        if(!top) this.jumping = false
+    }
+
+    collide(pos,left) {
+        this.velocity.x = 0
+        if(pos) this.position.x = left ? pos : pos-this.width
+        this.colliding = true
     }
 
     update() {
@@ -91,15 +118,13 @@ class Platform {
             x,
             y
         }
-        this.width = 192
-        this.height = 32
+        this.blocks = 6
+        this.width = blocksize*this.blocks
+        this.height = blocksize
     }
 
     draw() {
-        //ctx.fillStyle = 'blue'
-        //ctx.fillRect(this.position.x,this.position.y,this.width,this.height)
-        let i=0
-        for(i=0;i<6;i++) ctx.drawImage(spritebridge,0,0,this.width,this.height,this.position.x+i*32,this.position.y,this.width,this.height)
+        for(let i=0;i<this.blocks;i++) ctx.drawImage(spritebridge,0,0,blocksize,blocksize,this.position.x+i*32,this.position.y,blocksize,blocksize)
     }
 }
 
@@ -109,8 +134,8 @@ class Block {
             x,
             y
         }
-        this.width = 32
-        this.height = 32
+        this.width = blocksize
+        this.height = blocksize
     }
 
     draw() {
@@ -118,70 +143,95 @@ class Block {
     }
 }
 
-const player = new Player()
-const platforms = [new Platform({x:bx+200,y:400}),new Platform({x:bx+800,y:500})]
-const blocks = [new Block({x:bx+200,y:200}),new Block({x:bx+700,y:500}),new Block({x:bx+700,y:532}),new Block({x:bx+700,y:564})]
+const player = new Player({x:blockCoord(bx,3),y:blockCoord(by+bh,14,true)})
+const platforms = [
+    new Platform({x:blockCoord(bx,6),y:blockCoord(by,11)}),
+    new Platform({x:blockCoord(bx,24),y:blockCoord(by,14)})
+]
+const blocks = [
+    new Block({x:blockCoord(bx,6),y:blockCoord(by,5)}),
+    new Block({x:blockCoord(bx,21),y:blockCoord(by,14)}),
+    new Block({x:blockCoord(bx,21),y:blockCoord(by,15)}),
+    new Block({x:blockCoord(bx,21),y:blockCoord(by,16)})
+]
 let scrollOffset = 0
+let scrolling = 0
 
+//Main function
 function animate() {
     requestAnimationFrame(animate)
-    ctx.clearRect(0,0,canvas.width,canvas.height)
-    ctx.fillStyle = '#ddd'
-    ctx.fillRect(bx,by,bw+bthick,bh)
 
-    //player
-    if(keys.right.pressed && player.position.x+player.width<bx+bthick+bw-scrollthick) {
+    function checkCollisions() {
+        player.jumping = true
+        player.colliding = false
+
+        //TEMP floor collision
+        if(player.position.y+player.height<=by+bh && player.position.y+player.height+player.velocity.y>by+bh) player.land(by+bh)
+
+        //platform collision
+        platforms.forEach(p => {
+            if(player.position.y+player.height<=p.position.y && player.position.y+player.height+player.velocity.y>p.position.y)
+                if(player.position.x+player.width>=p.position.x && player.position.x<=p.position.x+p.width)
+                    player.land(p.position.y)
+        })
+
+        //block collision
+        xdiff = scrolling!=0 ? scrolling*speed : player.velocity.x
+        blocks.forEach(b => {
+            if(player.position.y+player.height<=b.position.y && player.position.y+player.height+player.velocity.y>b.position.y)
+                if(player.position.x+player.width>b.position.x && player.position.x<b.position.x+b.width)
+                    player.land(b.position.y)
+            if(player.position.y>=b.position.y+b.height && player.position.y+player.velocity.y<=b.position.y+b.height)
+                if(player.position.x+player.width>b.position.x && player.position.x<b.position.x+b.width)
+                    player.land(b.position.y+b.height,true)
+            if(player.position.x+player.width<=b.position.x && player.position.x+player.width+xdiff>b.position.x)
+                if(player.position.y+player.height>=b.position.y && player.position.y<b.position.y+b.height)
+                    player.collide(b.position.x)
+            if(player.position.x>=b.position.x+b.width && player.position.x+xdiff<b.position.x+b.width)
+                if(player.position.y+player.height>=b.position.y && player.position.y<b.position.y+b.height)
+                    player.collide(b.position.x+b.width,true)
+        })
+    }
+
+    //Player
+    if(keys.right.pressed && player.position.x+player.width<bx+bw-scrollthick) {
+        scrolling = 0
         player.velocity.x = 5
-    } else if(keys.left.pressed && player.position.x>bx+bthick+scrollthick) {
+    } else if(keys.left.pressed && player.position.x>bx+scrollthick) {
+        scrolling = 0
         player.velocity.x = -5
     } else {
         player.velocity.x = 0
-        if(keys.right.pressed) {
+        if(keys.right.pressed && !player.colliding) {
+            scrolling = 1
             scrollOffset += 5
             platforms.forEach(p => p.position.x -= 5)
             blocks.forEach(b => b.position.x -= 5)
-        } else if(keys.left.pressed) {
+        } else if(keys.left.pressed && !player.colliding) {
+            scrolling = -1
             scrollOffset -= 5
             platforms.forEach(p => p.position.x += 5)
             blocks.forEach(b => b.position.x += 5)
         }
     }
 
-    player.jumping = true
-    //TEMP floor collision
-    if(player.position.y+player.height<=by+bh && player.position.y+player.height+player.velocity.y>=by+bh) player.land()
-
-    //platform collision
-    platforms.forEach(p => {
-        if(player.position.y+player.height<=p.position.y && player.position.y+player.height+player.velocity.y>=p.position.y)
-            if(player.position.x+player.width>=p.position.x && player.position.x<=p.position.x+p.width)
-                player.land()
-    })
-
-    //block collision
-    blocks.forEach(b => {
-        if(player.position.y+player.height<=b.position.y && player.position.y+player.height+player.velocity.y>=b.position.y)
-            if(player.position.x+player.width>=b.position.x && player.position.x<=b.position.x+b.width)
-                player.land()
-        if(player.position.y>=b.position.y+b.height && player.position.y+player.velocity.y<=b.position.y+b.height)
-            if(player.position.x+player.width>=b.position.x && player.position.x<=b.position.x+b.width)
-                player.velocity.y = 0
-        if(player.position.x+player.width<=b.position.x && player.position.x+player.width+player.velocity.x>=b.position.x)
-            if(player.position.y+player.height>=b.position.y && player.position.y<=b.position.y+b.height)
-                player.velocity.x = 0
-        if(player.position.x>=b.position.x+b.width && player.position.x+player.velocity.x<=b.position.x+b.width)
-            if(player.position.y+player.height>=b.position.y && player.position.y<=b.position.y+b.height)
-                player.velocity.x = 0
-    })
+    checkCollisions()
 
     //win scenario
     if(scrollOffset>1600) console.log('you win')
     
+    // Drawing functions
+    ctx.clearRect(0,0,canvas.width,canvas.height)
+    ctx.fillStyle = '#ddd'
+    ctx.fillRect(bx,by,bw,bh)
+    drawGrid(scrollOffset)
+    // vvvvvv
     player.update()
+    // ^^^^^^
     platforms.forEach(p => p.draw())
     blocks.forEach(b => b.draw())
     drawBounds()
-    console.log(player.position.x,player.position.y)
+    clearOutside()
 }
 
 waluigi()
