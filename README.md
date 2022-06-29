@@ -6,6 +6,11 @@ https://donatomodugno.github.io/MarioJS
 
 Changelog
 ###
+* 0.2.3: _Parsifichiamo il tutto_
+    - Implemented level generation from js file
+    - Added favicon and title
+    - Moved game in MainGame function
+    - Added lava block (no sprite, still buggy)
 * 0.2.2: _Commit post-esame di Software Engineering_
     - Improved clearOutside function
     - Improved background functionalities
