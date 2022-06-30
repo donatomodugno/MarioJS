@@ -5,7 +5,7 @@ canvas.height = innerHeight
 
 function MainGame() {
     // Constants
-    const VERSION = "0.2.3"
+    const VERSION = "0.2.4"
     const BLOCKSIZE = 32
     const BLOCKCOLS = 24//*32
     const BLOCKROWS = 18//*24
@@ -19,17 +19,7 @@ function MainGame() {
     const GRAVITY = 0.5
     const ACCELERATION = 0.2
     // Assets
-    const audiojump = new Audio("./assets/player-jump.ogg")
-    const imgplatform = new Image()
-    imgplatform.src = "./assets/platform.png"
-    const background = new Image()
-    background.src = "./assets/background.png"
-    const spriteblock = new Image()
-    spriteblock.src = "./assets/block.png"
-    const spriteground = new Image()
-    spriteground.src = "./assets/block-1.png"
-    const spritebridge = new Image()
-    spritebridge.src = "./assets/bridge.png"
+    /* Moved to assets.js */
 
     // Functions and classes
     function printVersion() {
@@ -55,13 +45,13 @@ function MainGame() {
 
     function drawBackground() {
         let gradient = ctx.createLinearGradient(0,0,0,BH)
-        gradient.addColorStop(0,'#edd')
-        gradient.addColorStop(1,'#dde')
-        ctx.fillStyle = '#ddd'//gradient
+        gradient.addColorStop(0,'#fdd')
+        gradient.addColorStop(1,'#ddf')
+        ctx.fillStyle = gradient//'#ddd'//gradient
         ctx.fillRect(BX,BY,BW,BH)
     }
 
-    function drawGrid(scrollOffset) {
+    function drawGrid() {
         const gridOffset = -scrollOffset%BLOCKSIZE
         ctx.fillStyle = "#ccc"
         for(let i=0;i<BLOCKROWS;i++) ctx.fillRect(BX,BY+BLOCKSIZE*i,BW+1,1)
@@ -100,16 +90,25 @@ function MainGame() {
                 y:1
             }
             this.width = BLOCKSIZE
-            this.height = BLOCKSIZE*2
+            this.height = BLOCKSIZE*2-8
             this.jumping = false
             this.colliding = false
+            this.direction = 1
             this.acceleration = ACCELERATION
             this.id = id
         }
 
         draw() {
-            ctx.fillStyle = 'red'
-            ctx.fillRect(this.position.x,this.position.y,this.width,this.height)
+            // ctx.fillStyle = 'red'
+            // ctx.fillRect(this.position.x,this.position.y,this.width,this.height)
+            const spriteframe = [0,0]
+            if(playerMoving==0 && this.direction==1) spriteframe.splice(0,2,5,0)
+            if(playerMoving==0 && this.direction==0) spriteframe.splice(0,2,4,8)
+            if(playerMoving==1) spriteframe.splice(0,2,5,1)
+            if(playerMoving==-1) spriteframe.splice(0,2,4,7)
+            if(this.jumping==true && this.direction==1) spriteframe.splice(1,1,3)
+            if(this.jumping==true && this.direction==0) spriteframe.splice(1,1,5)
+            ctx.drawImage(spritemario,spriteframe[0]*100+50-BLOCKSIZE/2,spriteframe[1]*100+50-BLOCKSIZE,32,64,this.position.x,this.position.y-8,32,64)
         }
 
         land(pos,top) {
@@ -127,8 +126,6 @@ function MainGame() {
         update() {
             this.position.x += this.velocity.x
             this.position.y += this.velocity.y
-            // if(this.position.y+this.height+this.velocity.y<=BH/*800*//*canvas.height*/) this.velocity.y += GRAVITY
-            // else this.land()
             this.velocity.y += GRAVITY
             this.draw()
         }
@@ -167,6 +164,7 @@ function MainGame() {
             this.width = BLOCKSIZE
             this.height = BLOCKSIZE
             this.lava = lava
+            this.frame = 0
             this.id = id
         }
 
@@ -179,8 +177,11 @@ function MainGame() {
                     ctx.drawImage(spriteground,this.position.x,this.position.y,this.width,this.height)
                     break;
                 case 2:
-                    ctx.fillStyle = '#c00'
-                    ctx.fillRect(this.position.x,this.position.y,this.width,this.height)
+                    ctx.drawImage(spritelava,0,BLOCKSIZE*this.frame,BLOCKSIZE,BLOCKSIZE,this.position.x,this.position.y,this.width,this.height)
+                    tick%8==0 && this.frame++
+                    if(this.frame==4) this.frame=0
+                    // ctx.fillStyle = '#c00'
+                    // ctx.fillRect(this.position.x,this.position.y,this.width,this.height)
                     break;
             }
         }
@@ -192,29 +193,13 @@ function MainGame() {
     function parseLevel() {
         player = new Player({x:blockCoord(BX,level.player[0].x),y:blockCoord(BY+BH,level.player[0].y,true)})
         level.platform.forEach(p => platforms.push(new Platform({x:blockCoord(BX,p.x),y:blockCoord(BY+BH,p.y,true)})))
-        level.block.forEach(b => blocks.push(new Block({x:blockCoord(BX,b.x),y:blockCoord(BY+BH,b.y,true)},b.id,b.id==2 ? true : false)))
+        level.block.forEach(b => blocks.push(new Block({x:blockCoord(BX,b.x),y:blockCoord(BY+BH,b.y,true)},b.id,b.id==2 && true)))
     }
 
-    // let player = new Player({x:blockCoord(BX,3),y:blockCoord(BY+BH,14,true)})
-    const platformsss = [
-        new Platform({x:blockCoord(BX,6),y:blockCoord(BY,11)}),
-        new Platform({x:blockCoord(BX,24),y:blockCoord(BY,14)})
-    ]
-    // const ground = []
-    // for(let i=0;i<40;i++) ground.push(new Block({x:blockCoord(BX,i),y:blockCoord(BY+BH,0,true)},1))
-    const blocksss = [
-        new Block({x:blockCoord(BX,-1),y:blockCoord(BY+BH,0,true)},2,true),
-        new Block({x:blockCoord(BX,-2),y:blockCoord(BY+BH,0,true)},2,true),
-        new Block({x:blockCoord(BX,-3),y:blockCoord(BY+BH,0,true)},2,true),
-        // ...ground,
-        new Block({x:blockCoord(BX,6),y:blockCoord(BY,5)}),
-        new Block({x:blockCoord(BX,21),y:blockCoord(BY,14)}),
-        new Block({x:blockCoord(BX,21),y:blockCoord(BY,15)}),
-        new Block({x:blockCoord(BX,21),y:blockCoord(BY,16)})
-    ]
     let scrollOffset = 0
     let scrollDirection = 0
-    let playerDirection = 0
+    let playerMoving = 0
+    let tick = 0
 
     // Main function
     function animate() {
@@ -266,6 +251,8 @@ function MainGame() {
             function playerDeath() {
                 cameraReset()
                 player = new Player({x:blockCoord(BX,3),y:blockCoord(BY+BH,14,true)})
+                audiodied.play()
+                // alert("Hai perso")
             }
 
             // Fall death
@@ -273,9 +260,16 @@ function MainGame() {
                 playerDeath()
             }
 
+            xdiff = scrollDirection!=0 ? scrollDirection*SPEED : player.velocity.x
             // Lava collision
             blocks.filter(b => b.lava).forEach(b => {
                 if(checkCollisionDown(player.position.y+player.height-1,b.position.y,player.velocity.y,player.position.x+player.width,b.position.x,player.position.x,b.position.x+b.width))
+                    playerDeath()
+                if(checkCollisionUp(player.position.y+1,b.position.y+b.height,player.velocity.y,player.position.x+player.width,b.position.x,player.position.x,b.position.x+b.width))
+                    playerDeath()
+                if(checkCollisionRight(player.position.x+player.width,b.position.x,xdiff,player.position.y+player.height,b.position.y,player.position.y,b.position.y+b.height))
+                    playerDeath()
+                if(checkCollisionLeft(player.position.x,b.position.x+b.width,xdiff,player.position.y+player.height,b.position.y,player.position.y,b.position.y+b.height))
                     playerDeath()
             })
 
@@ -286,7 +280,6 @@ function MainGame() {
             })
 
             // Block collision
-            xdiff = scrollDirection!=0 ? scrollDirection*SPEED : player.velocity.x
             blocks.filter(b => !b.lava).forEach(b => {
                 if(checkCollisionDown(player.position.y+player.height,b.position.y,player.velocity.y,player.position.x+player.width,b.position.x,player.position.x,b.position.x+b.width))
                     player.land(b.position.y)
@@ -305,31 +298,33 @@ function MainGame() {
 
 
         // Player movements
-        playerDirection = 0
-        if(keys.right.pressed) playerDirection += 1
-        if(keys.left.pressed) playerDirection -= 1
+        playerMoving = 0
+        if(keys.right.pressed) playerMoving += 1
+        if(keys.left.pressed) playerMoving -= 1
         player.acceleration = ACCELERATION
 
-        if(playerDirection>0 && player.position.x+player.width<BX+BW-SCROLLTHICK) {
+        if(playerMoving>0 && player.position.x+player.width<BX+BW-SCROLLTHICK) {
             scrollDirection = 0
             player.velocity.x = SPEED
+            player.direction = 1
             // if(player.velocity.x==SPEED) player.acceleration = 0
             // if(player.velocity.x<SPEED) player.velocity.x += player.acceleration
             // console.log(player.acceleration,player.velocity.x)
-        } else if(playerDirection<0 && player.position.x>BX+SCROLLTHICK) {
+        } else if(playerMoving<0 && player.position.x>BX+SCROLLTHICK) {
             scrollDirection = 0
             player.velocity.x = -SPEED
+            player.direction = 0
             // if(player.velocity.x==-SPEED) player.acceleration = 0
             // if(player.velocity.x>-SPEED) player.velocity.x -= player.acceleration
             // console.log(player.acceleration,player.velocity.x)
         } else {
             player.velocity.x = 0
-            if(playerDirection>0) {
+            if(playerMoving>0) {
                 scrollDirection = 1
                 // scrollOffset += SPEED
                 // platforms.forEach(p => p.position.x -= SPEED)
                 // blocks.forEach(b => b.position.x -= SPEED)
-            } else if(playerDirection<0) {
+            } else if(playerMoving<0) {
                 scrollDirection = -1
                 // scrollOffset -= SPEED
                 // platforms.forEach(p => p.position.x += SPEED)
@@ -337,17 +332,17 @@ function MainGame() {
             }
         }
 
-        if(playerDirection==0 && player.velocity.x>0) {
+        if(playerMoving==0 && player.velocity.x>0) {
             player.acceleration = ACCELERATION
             player.velocity.x -= player.acceleration
         }
-        if(playerDirection==0 && player.velocity.x<0) {
+        if(playerMoving==0 && player.velocity.x<0) {
             player.acceleration = ACCELERATION
             player.velocity.x += player.acceleration
         }
 
         /* --- WARNING: DIRTY CODE --- */
-        if(playerDirection==0 && player.velocity.x>-ACCELERATION && player.velocity.x<ACCELERATION) {
+        if(playerMoving==0 && player.velocity.x>-ACCELERATION && player.velocity.x<ACCELERATION) {
             player.acceleration = ACCELERATION
             player.velocity.x = 0
         }
@@ -370,6 +365,9 @@ function MainGame() {
         /* zIndex=+2 */ drawBounds()
         /* zIndex=+3 */ clearOutside()
         /* zIndex=+4 */ printVersion()
+
+        tick==64 ? tick = 0 : tick++
+        console.log(tick)
     }
 
     waluigi()

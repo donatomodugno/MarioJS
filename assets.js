@@ -1,0 +1,16 @@
+const audiojump = new Audio("./assets/player-jump.ogg")
+const audiodied = new Audio("./assets/player-died.ogg")
+const imgplatform = new Image()
+imgplatform.src = "./assets/platform.png"
+const background = new Image()
+background.src = "./assets/background.png"
+const spriteblock = new Image()
+spriteblock.src = "./assets/block.png"
+const spriteground = new Image()
+spriteground.src = "./assets/block-1.png"
+const spritelava = new Image()
+spritelava.src = "./assets/block-2.png"
+const spritebridge = new Image()
+spritebridge.src = "./assets/bridge.png"
+const spritemario = new Image()
+spritemario.src = "./assets/mario-2.png"

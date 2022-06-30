@@ -6,6 +6,11 @@ https://donatomodugno.github.io/MarioJS
 
 Changelog
 ###
+* 0.2.4: _The floor is lava_
+    - Completed lava block
+    - Added lava animated sprite
+    - Added Mario sprite (idle, walking, jumping)
+    - Asset loader moved to assets.js
 * 0.2.3: _Parsifichiamo il tutto_
     - Implemented level generation from js file
     - Added favicon and title
