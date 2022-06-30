@@ -195,20 +195,20 @@ function clearOutside() {
     function mobileControls() {
         if(isMobile) {
             ctx.fillStyle = 'lightgrey'
-            ctx.fillRect(0,BY+BH+200,canvas.width,BH)
+            ctx.fillRect(0,BY+BH+200,canvas.width,BH/2)
             ctx.fillStyle = 'grey'
-            ctx.fillRect(0,BY+BH+204+BH,BX+BW/2,BH)
-            ctx.fillRect(BX+BW/2+4,BY+BH+204+BH,BX+BW/2,BH)
-            ctx.font = "500px Arial"
-            ctx.fillText("^",BW/2,BY+BH*2+200)
+            ctx.fillRect(0,BY+BH+204+BH/2,BX+BW/2,BH/2)
+            ctx.fillRect(BX+BW/2+4,BY+BH+204+BH/2,BX+BW/2,BH/2)
+            ctx.font = "200px Arial"
+            ctx.fillText("^",BX+BW/2,BY+BH*2-100)
             ctx.fillStyle = 'lightgrey'
-            ctx.fillText("<",BX,BY+BH*3+200)
-            ctx.fillText(">",BX+BW/2,BY+BH*3+200)
+            ctx.fillText("<",BX,BY+BH*2+200)
+            ctx.fillText(">",BX*2+BW/2,BY+BH*2+200)
         }
 
-        addEventListener('mousedown'/*touchstart*/,(e) => {
-            const xpos = e.pageX//.originalEvent.touches[0].pageX
-            const ypos = e.pageY//.originalEvent.touches[0].pageY
+        addEventListener('touchstart'/*mousedown*/,(e) => {
+            const xpos = e.changedTouches[0].pageX//.pageX//.originalEvent.touches[0].pageX
+            const ypos = e.changedTouches[0].pageY//.pageY//.originalEvent.touches[0].pageY
             if(running && isMobile) {
                 if(ypos>BY+BH+200 && ypos<BY+BH*2+200) {
                     if(!player.jumping) {
@@ -217,23 +217,23 @@ function clearOutside() {
                         audiojump.play()
                     }
                 }
-                if(ypos>BY+BH*2+200 && xpos<canvas.width/2) {
+                if(ypos>BY+BH*2+200 && xpos<BX+BW/2) {
                     keys.left.pressed = true
                 }
-                if(ypos>BY+BH*2+200 && xpos>canvas.width/2) {
+                if(ypos>BY+BH*2+200 && xpos>BX+BW/2) {
                     keys.right.pressed = true
                 }
             }
         })
 
-        addEventListener('mouseup'/*touchend*/,(e) => {
-            const xpos = e.pageX//.originalEvent.touches[0].pageX
-            const ypos = e.pageY//.originalEvent.touches[0].pageY
+        addEventListener('touchend'/*mouseup*/,(e) => {
+            const xpos = e.changedTouches[0].pageX//.pageX//.originalEvent.touches[0].pageX
+            const ypos = e.changedTouches[0].pageY//.pageY//.originalEvent.touches[0].pageY
             if(running && isMobile) {
-                if(ypos>BY+BH*2+200 && xpos<canvas.width/2) {
+                if(ypos>BY+BH*2+200 && xpos<BX+BW/2) {
                     keys.left.pressed = false
                 }
-                if(ypos>BY+BH*2+200 && xpos>canvas.width/2) {
+                if(ypos>BY+BH*2+200 && xpos>BX+BW/2) {
                     keys.right.pressed = false
                 }
             }
