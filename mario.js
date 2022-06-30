@@ -200,27 +200,27 @@ function clearOutside() {
             ctx.fillRect(0,BY+BH+204+BH/2,BX+BW/2,BH/2)
             ctx.fillRect(BX+BW/2+4,BY+BH+204+BH/2,BX+BW/2,BH/2)
             ctx.font = "200px Arial"
-            ctx.fillText("^",BX+BW/2,BY+BH*2-100)
+            ctx.fillText("^",BW/2,BY+BH*2-100)
             ctx.fillStyle = 'lightgrey'
-            ctx.fillText("<",BX,BY+BH*2+200)
-            ctx.fillText(">",BX*2+BW/2,BY+BH*2+200)
+            ctx.fillText("<",BW/4,BY+BH*2+100)
+            ctx.fillText(">",3*BW/4,BY+BH*2+100)
         }
 
         addEventListener('touchstart'/*mousedown*/,(e) => {
             const xpos = e.changedTouches[0].pageX//.pageX//.originalEvent.touches[0].pageX
             const ypos = e.changedTouches[0].pageY//.pageY//.originalEvent.touches[0].pageY
             if(running && isMobile) {
-                if(ypos>BY+BH+200 && ypos<BY+BH*2+200) {
+                if(ypos>BY+BH+200 && ypos<BY+BH+200+BH/2) {
                     if(!player.jumping) {
                         player.jumping = true
                         player.velocity.y = -16//-18//-10
                         audiojump.play()
                     }
                 }
-                if(ypos>BY+BH*2+200 && xpos<BX+BW/2) {
+                if(ypos>BY+BH+200+BH/2 && xpos<BX+BW/2) {
                     keys.left.pressed = true
                 }
-                if(ypos>BY+BH*2+200 && xpos>BX+BW/2) {
+                if(ypos>BY+BH+200+BH/2 && xpos>BX+BW/2) {
                     keys.right.pressed = true
                 }
             }
@@ -230,10 +230,10 @@ function clearOutside() {
             const xpos = e.changedTouches[0].pageX//.pageX//.originalEvent.touches[0].pageX
             const ypos = e.changedTouches[0].pageY//.pageY//.originalEvent.touches[0].pageY
             if(running && isMobile) {
-                if(ypos>BY+BH*2+200 && xpos<BX+BW/2) {
+                if(keys.left.pressed) {
                     keys.left.pressed = false
                 }
-                if(ypos>BY+BH*2+200 && xpos>BX+BW/2) {
+                if(keys.right.pressed) {
                     keys.right.pressed = false
                 }
             }

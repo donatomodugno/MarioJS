@@ -6,6 +6,8 @@ https://donatomodugno.github.io/MarioJS
 
 Changelog
 ###
+* 0.3.0.7
+    - Mobile gestures improved
 * 0.3.0.6
     - Restored touches instead of mouse for mobile
 * 0.3.0.5

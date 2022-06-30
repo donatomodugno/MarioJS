@@ -3,7 +3,7 @@ const ctx = canvas.getContext('2d')
 canvas.width = innerWidth
 canvas.height = innerHeight
 
-const VERSION = "0.3.0.6"
+const VERSION = "0.3.0.7"
 const BLOCKSIZE = 32
 const BLOCKCOLS = 24//*32
 const BLOCKROWS = 18//*24
