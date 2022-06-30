@@ -50,14 +50,30 @@ function buttonBlock(callback,text,x,y,centered) {
     addEventListener('mousemove',({pageX,pageY}) => {
         canvas.style.cursor = 'default'
         if(!running) {
-            if(pageX>x+xoffset && pageX<x+width+xoffset-4 && pageY>y+yoffset && pageY<y+height+yoffset) canvas.style.cursor = 'pointer'
+            if(pageX>x+xoffset && pageX<x+width+xoffset-4 && pageY>y+yoffset && pageY<y+height+yoffset) {
+                canvas.style.cursor = 'pointer'
+                // ctx.globalAlpha = 0.1
+                // ctx.fillStyle = 'white'
+                // ctx.fillRect(x+xoffset,y+yoffset,236,128)
+                // ctx.globalAlpha = 1
+            }
             else canvas.style.cursor = 'default'
         }
     })
 
-    addEventListener('mousedown',({pageX,pageY}) => {
+    addEventListener('mouseup',({pageX,pageY}) => {
         if(!running && pageX>x+xoffset && pageX<x+width+xoffset && pageY>y+yoffset && pageY<y+height+yoffset) callback()
     })
+}
+
+function checkAssets() {
+    if(!spriteblock.src.length) return 0
+    if(!spriteground.src.length) return 0
+    if(!spritelava.src.length) return 0
+    if(!spritebridge.src.length) return 0
+    if(!spritemario.src.length) return 0
+    if(!font.src.length) return 0
+    return 1
 }
 
 function Menu() {
@@ -71,12 +87,15 @@ function Menu() {
     })
 }
 
-Menu()
+// if(checkAssets())
 
-window.addEventListener("load", () => {
-    const isMobile = navigator.userAgent.toLowerCase().match(/mobile/i);
-    if (true) {
-        // alert("Is mobile device");
-    }
+// setTimeout(() => Menu(),500) //dirty code
+
+window.addEventListener("load",() => {
+    // const isMobile = navigator.userAgent.toLowerCase().match(/mobile/i);
+    // if (true) {
+    //     alert("Is mobile device");
+    // }
     // else { alert("Not mobile device"); }
-  });
+    Menu()
+});

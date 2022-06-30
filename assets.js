@@ -3,7 +3,7 @@ const ctx = canvas.getContext('2d')
 canvas.width = innerWidth
 canvas.height = innerHeight
 
-const VERSION = "0.3"
+const VERSION = "0.3.0.1"
 const BLOCKSIZE = 32
 const BLOCKCOLS = 24//*32
 const BLOCKROWS = 18//*24
@@ -20,10 +20,6 @@ const ACCELERATION = 0.2
 const music = new Audio("./assets/ssbb-waluigi.ogg")
 const audiojump = new Audio("./assets/player-jump.ogg")
 const audiodied = new Audio("./assets/player-died.ogg")
-const imgplatform = new Image()
-imgplatform.src = "./assets/platform.png"
-const background = new Image()
-background.src = "./assets/background.png"
 const spriteblock = new Image()
 spriteblock.src = "./assets/block.png"
 const spriteground = new Image()
@@ -34,6 +30,14 @@ const spritebridge = new Image()
 spritebridge.src = "./assets/bridge.png"
 const spritemario = new Image()
 spritemario.src = "./assets/mario-2.png"
+
+function testload() {
+    spriteblock.src = "./assets/block.png"
+    spriteground.src = "./assets/block-1.png"
+    spritelava.src = "./assets/block-2.png"
+    spritebridge.src = "./assets/bridge.png"
+    spritemario.src = "./assets/mario-2.png"
+}
 
 const font = new Image()
 font.src = "./assets/font.png"

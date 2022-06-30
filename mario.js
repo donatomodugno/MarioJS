@@ -199,11 +199,11 @@ function clearOutside() {
     let playerMoving = 0
     let tick = 0
 
-    function controlliMobile() {
+    function mobileControls() {
         // ctx.fillStyle = 'grey'
         // ctx.fillRect(0,0,100,100)
 
-        addEventListener('mousedown',({pageX,pageY}) => {
+        addEventListener('touchstart',({pageX,pageY}) => {
             if(running && pageY>BY+BH+200) {
                 if(!player.jumping) {
                     player.jumping = true
@@ -218,7 +218,7 @@ function clearOutside() {
     function animate() {
         if(running) {
             requestAnimationFrame(animate)
-            requestAnimationFrame(controlliMobile)
+            requestAnimationFrame(mobileControls)
         }
         player.jumping = true
         player.colliding = false

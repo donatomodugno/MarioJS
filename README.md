@@ -6,6 +6,10 @@ https://donatomodugno.github.io/MarioJS
 
 Changelog
 ###
+* 0.3.0.1
+    - Fixed bug: sometimes sprites not loads
+    - Fixed mobile control
+    - Cleaned code a bit
 * 0.3: _Come tutto ebbe inizio_
     - Added main menu to start the game
     - Removed non-Mario assets
