@@ -200,17 +200,41 @@ function clearOutside() {
     let tick = 0
 
     function mobileControls() {
-        // ctx.fillStyle = 'grey'
-        // ctx.fillRect(0,0,100,100)
+        ctx.fillStyle = 'lightgrey'
+        ctx.fillRect(0,BY+BH+200,canvas.width,BH)
+        ctx.fillStyle = 'grey'
+        ctx.fillRect(0,BY+BH+204+BH,BW/2,BH)
+        ctx.fillRect(canvas.width-BW,BY+BH+204+BH,BW/2,BH)
 
         addEventListener('touchstart',(e) => {
             const xpos = e.originalEvent.touches[0].pageX
             const ypos = e.originalEvent.touches[0].pageY
-            if(running && ypos>BY+BH+200) {
-                if(!player.jumping) {
-                    player.jumping = true
-                    player.velocity.y = -16//-18//-10
-                    audiojump.play()
+            if(running) {
+                if(ypos>BY+BH+200 && ypos<BY+BH*2+200) {
+                    if(!player.jumping) {
+                        player.jumping = true
+                        player.velocity.y = -16//-18//-10
+                        audiojump.play()
+                    }
+                }
+                if(ypos>BY+BH*2+200 && xpos<canvas.width/2) {
+                    keys.left.pressed = true
+                }
+                if(ypos>BY+BH*2+200 && xpos>canvas.width/2) {
+                    keys.right.pressed = true
+                }
+            }
+        })
+
+        addEventListener('touchend',(e) => {
+            const xpos = e.originalEvent.touches[0].pageX
+            const ypos = e.originalEvent.touches[0].pageY
+            if(running) {
+                if(ypos>BY+BH*2+200 && xpos<canvas.width/2) {
+                    keys.left.pressed = false
+                }
+                if(ypos>BY+BH*2+200 && xpos>canvas.width/2) {
+                    keys.right.pressed = false
                 }
             }
         })
