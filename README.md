@@ -6,6 +6,8 @@ https://donatomodugno.github.io/MarioJS
 
 Changelog
 ###
+* 0.3.0.4
+    - Another mobile test
 * 0.3.0.3
     - Added mobile controller (kinda)
 * 0.3.0.2
