@@ -41,14 +41,6 @@ function clearOutside() {
     ctx.clearRect(BX-BTHICK,BY+BH+BTHICK,BW+BTHICK*2,canvas.height-BY-BH-BTHICK)
 }
 
-// Main game
-
-// function MainGame() {
-    // Constants
-    /* Moved to assets.js */
-    // Assets
-    /* Moved to assets.js */
-
     // Functions and classes
 
     function drawGrid() {
@@ -198,18 +190,26 @@ function clearOutside() {
     let scrollDirection = 0
     let playerMoving = 0
     let tick = 0
+    let isMobile = 0
 
     function mobileControls() {
-        ctx.fillStyle = 'lightgrey'
-        ctx.fillRect(0,BY+BH+200,canvas.width,BH)
-        ctx.fillStyle = 'grey'
-        ctx.fillRect(0,BY+BH+204+BH,BW/2,BH)
-        ctx.fillRect(canvas.width-BW,BY+BH+204+BH,BW/2,BH)
+        if(isMobile) {
+            ctx.fillStyle = 'lightgrey'
+            ctx.fillRect(0,BY+BH+200,canvas.width,BH)
+            ctx.fillStyle = 'grey'
+            ctx.fillRect(0,BY+BH+204+BH,BX+BW/2,BH)
+            ctx.fillRect(BX+BW/2+4,BY+BH+204+BH,BX+BW/2,BH)
+            ctx.font = "500px Arial"
+            ctx.fillText("^",BW/2,BY+BH*2+200)
+            ctx.fillStyle = 'lightgrey'
+            ctx.fillText("<",BX,BY+BH*3+200)
+            ctx.fillText(">",BX+BW/2,BY+BH*3+200)
+        }
 
-        addEventListener('touchstart',(e) => {
-            const xpos = e.originalEvent.touches[0].pageX
-            const ypos = e.originalEvent.touches[0].pageY
-            if(running) {
+        addEventListener('mousedown'/*touchstart*/,(e) => {
+            const xpos = e.pageX//.originalEvent.touches[0].pageX
+            const ypos = e.pageY//.originalEvent.touches[0].pageY
+            if(running && isMobile) {
                 if(ypos>BY+BH+200 && ypos<BY+BH*2+200) {
                     if(!player.jumping) {
                         player.jumping = true
@@ -226,10 +226,10 @@ function clearOutside() {
             }
         })
 
-        addEventListener('touchend',(e) => {
-            const xpos = e.originalEvent.touches[0].pageX
-            const ypos = e.originalEvent.touches[0].pageY
-            if(running) {
+        addEventListener('mouseup'/*touchend*/,(e) => {
+            const xpos = e.pageX//.originalEvent.touches[0].pageX
+            const ypos = e.pageY//.originalEvent.touches[0].pageY
+            if(running && isMobile) {
                 if(ypos>BY+BH*2+200 && xpos<canvas.width/2) {
                     keys.left.pressed = false
                 }

@@ -6,6 +6,8 @@ https://donatomodugno.github.io/MarioJS
 
 Changelog
 ###
+* 0.3.0.5
+    - The nth patch for mobile devices
 * 0.3.0.4
     - Another mobile test
 * 0.3.0.3

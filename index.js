@@ -92,7 +92,7 @@ function Menu() {
 // setTimeout(() => Menu(),500) //dirty code
 
 window.addEventListener("load",() => {
-    // const isMobile = navigator.userAgent.toLowerCase().match(/mobile/i);
+    isMobile = navigator.userAgent.toLowerCase().match(/mobile/i);
     // if (true) {
     //     alert("Is mobile device");
     // }
