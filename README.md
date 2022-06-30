@@ -6,6 +6,12 @@ https://donatomodugno.github.io/MarioJS
 
 Changelog
 ###
+* 0.3: _Come tutto ebbe inizio_
+    - Added main menu to start the game
+    - Removed non-Mario assets
+    - Added some rough mobile implementations
+    - Code splitted in many new js files
+    - Improved win scenario
 * 0.2.4: _The floor is lava_
     - Completed lava block
     - Added lava animated sprite
