@@ -203,8 +203,10 @@ function clearOutside() {
         // ctx.fillStyle = 'grey'
         // ctx.fillRect(0,0,100,100)
 
-        addEventListener('touchstart',({pageX,pageY}) => {
-            if(running && pageY>BY+BH+200) {
+        addEventListener('touchstart',(e) => {
+            const xpos = e.originalEvent.touches[0].pageX
+            const ypos = e.originalEvent.touches[0].pageY
+            if(running && ypos>BY+BH+200) {
                 if(!player.jumping) {
                     player.jumping = true
                     player.velocity.y = -16//-18//-10

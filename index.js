@@ -83,7 +83,7 @@ function Menu() {
     printVersion()
 
     addEventListener('keydown',({key}) => {
-        if(key==' ' || key=='Enter' || key=='0') runGame()
+        if(key==' ' || key=='Enter'/*  || key=='0' */) runGame()
     })
 }
 

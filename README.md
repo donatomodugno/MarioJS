@@ -6,6 +6,8 @@ https://donatomodugno.github.io/MarioJS
 
 Changelog
 ###
+* 0.3.0.2
+    - Fixed some mobile controls bugs
 * 0.3.0.1
     - Fixed bug: sometimes sprites not loads
     - Fixed mobile control
