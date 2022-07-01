@@ -6,6 +6,13 @@ https://donatomodugno.github.io/MarioJS
 
 Changelog
 ###
+* 0.3.1: _Parallax la mia gioiax_
+    - Mobile gestures improved again
+    - Added parallax backgrounds
+    - Pushed down floor level for death
+    - Improved collision function for floor
+    - Improved menu button
+    - Moved blocks z-order behind player
 * 0.3.0.7
     - Mobile gestures improved
 * 0.3.0.6

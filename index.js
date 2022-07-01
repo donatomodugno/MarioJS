@@ -1,6 +1,8 @@
 // Main menu
 
 let running = false
+let btnstyle = 0
+let mousedown = false
 
 function runGame() {
     if(!running) {
@@ -27,6 +29,23 @@ function buttonBlock(callback,text,x,y,centered) {
     const height = 64*zoom
     const xoffset = centered ? -width/2 : -24*zoom
     const yoffset = centered ? -height/2 : -24*zoom
+
+    function drawLight() {
+        ctx.globalAlpha = 0.1
+        ctx.fillStyle = 'white'
+        ctx.fillRect(x+xoffset,y+yoffset,236,128)
+        ctx.globalAlpha = 1
+        console.log("entrato")
+    }
+
+    function drawDark() {
+        ctx.globalAlpha = 0.2
+        ctx.fillStyle = 'black'
+        ctx.fillRect(x+xoffset,y+yoffset,236,128)
+        ctx.globalAlpha = 1
+        console.log("entrato")
+    }
+
     if(centered) {
         ctx.drawImage(spriteblock,0,0,12,32,x-(text.length/2*18+24)*zoom,y-32*zoom,24*zoom,64*zoom)
         text.split("").forEach((c,i) => ctx.drawImage(spriteblock,12,0,10,32,x-((text.length/2-i)*18)*zoom,y-32*zoom,18*zoom,64*zoom))
@@ -35,48 +54,46 @@ function buttonBlock(callback,text,x,y,centered) {
         ctx.drawImage(spriteblock,0,0,12,32,x-24*zoom,y-24*zoom,24*zoom,64*zoom)
         text.split("").forEach((c,i) => ctx.drawImage(spriteblock,12,0,10,32,x+i*18*zoom,y-24*zoom,18*zoom,64*zoom))
         ctx.drawImage(spriteblock,20,0,12,32,x+(text.length*18-2)*zoom,y-24*zoom,24*zoom,64*zoom)
-        // ctx.drawImage(spriteblock,0,0,12,32,BX+BW/2-40,BY+BH/2-48,24*2,64*2)
-        // ctx.drawImage(spriteblock,12,0,8,32,BX+BW/2+8,BY+BH/2-48,16*2,64*2)
-        // ctx.drawImage(spriteblock,12,0,8,32,BX+BW/2+8+32,BY+BH/2-48,16*2,64*2)
-        // ctx.drawImage(spriteblock,12,0,8,32,BX+BW/2+8+32*2,BY+BH/2-48,16*2,64*2)
-        // ctx.drawImage(spriteblock,12,0,8,32,BX+BW/2+8+32*3,BY+BH/2-48,16*2,64*2)
-        // ctx.drawImage(spriteblock,20,0,12,32,BX+BW/2+32*4+4,BY+BH/2-48,24*2,64*2)
-        // ctx.font = "50px Arial"
-        // ctx.fillText("PLAY",BX+BW/2,BY+BH/2+BLOCKSIZE)
-        // drawText(text,BX+BW/2,BY+BH/2,2)
     }
     drawText(text,x,y,2,centered)
+    if(btnstyle == 1) drawLight()
+    if(btnstyle == 2) drawDark()
     
     addEventListener('mousemove',({pageX,pageY}) => {
         canvas.style.cursor = 'default'
         if(!running) {
             if(pageX>x+xoffset && pageX<x+width+xoffset-4 && pageY>y+yoffset && pageY<y+height+yoffset) {
                 canvas.style.cursor = 'pointer'
-                // ctx.globalAlpha = 0.1
-                // ctx.fillStyle = 'white'
-                // ctx.fillRect(x+xoffset,y+yoffset,236,128)
-                // ctx.globalAlpha = 1
+                if(mousedown) btnstyle = 2
+                else btnstyle = 1
             }
-            else canvas.style.cursor = 'default'
+            else {
+                canvas.style.cursor = 'default'
+                btnstyle = 0
+            }
         }
     })
 
+    addEventListener('mousedown',({pageX,pageY}) => {
+        if(!running) {
+            mousedown = true
+            btnstyle = 2
+        }
+        // {
+            // if(pageX>x+xoffset && pageX<x+width+xoffset && pageY>y+yoffset && pageY<y+height+yoffset) btnstyle = 2
+            // else btnstyle = 1
+        // }
+    })
+
     addEventListener('mouseup',({pageX,pageY}) => {
-        if(!running && pageX>x+xoffset && pageX<x+width+xoffset && pageY>y+yoffset && pageY<y+height+yoffset) callback()
+        if(!running) {
+            mousedown = false
+            if(pageX>x+xoffset && pageX<x+width+xoffset && pageY>y+yoffset && pageY<y+height+yoffset) callback()
+        }
     })
 }
 
-function checkAssets() {
-    if(!spriteblock.src.length) return 0
-    if(!spriteground.src.length) return 0
-    if(!spritelava.src.length) return 0
-    if(!spritebridge.src.length) return 0
-    if(!spritemario.src.length) return 0
-    if(!font.src.length) return 0
-    return 1
-}
-
-function Menu() {
+function drawMenu() {
     buttonBlock(() => runGame(),"Play",BX+BW/2,BY+BH/2,true)
     drawText("Or press space",BX+BW/2,BY+BH/2+200)
     drawBounds()
@@ -85,6 +102,15 @@ function Menu() {
     addEventListener('keydown',({key}) => {
         if(key==' ' || key=='Enter'/*  || key=='0' */) runGame()
     })
+}
+
+function animateMenu() {
+    if(!running) requestAnimationFrame(animateMenu)
+    drawMenu()
+}
+
+function Menu() {
+    animateMenu()
 }
 
 // if(checkAssets())

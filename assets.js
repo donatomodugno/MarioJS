@@ -3,7 +3,8 @@ const ctx = canvas.getContext('2d')
 canvas.width = innerWidth
 canvas.height = innerHeight
 
-const VERSION = "0.3.0.7"
+const VERSION = "0.3.1"
+const CORNERLABEL = "MarioJS " + VERSION
 const BLOCKSIZE = 32
 const BLOCKCOLS = 24//*32
 const BLOCKROWS = 18//*24
@@ -17,27 +18,24 @@ const SPEED = 5//4
 const GRAVITY = 0.5
 const ACCELERATION = 0.2
 
-const music = new Audio("./assets/ssbb-waluigi.ogg")
-const audiojump = new Audio("./assets/player-jump.ogg")
-const audiodied = new Audio("./assets/player-died.ogg")
+const ASSETPATH = "./assets/"
+const music = new Audio(ASSETPATH+"ssbb-waluigi.ogg")
+const audiojump = new Audio(ASSETPATH+"player-jump.ogg")
+const audiodied = new Audio(ASSETPATH+"player-died.ogg")
 const spriteblock = new Image()
-spriteblock.src = "./assets/block.png"
+spriteblock.src = ASSETPATH+"block.png"
 const spriteground = new Image()
-spriteground.src = "./assets/block-1.png"
+spriteground.src = ASSETPATH+"block-1.png"
 const spritelava = new Image()
-spritelava.src = "./assets/block-2.png"
+spritelava.src = ASSETPATH+"block-2.png"
 const spritebridge = new Image()
-spritebridge.src = "./assets/bridge.png"
+spritebridge.src = ASSETPATH+"bridge.png"
 const spritemario = new Image()
-spritemario.src = "./assets/mario-2.png"
-
-function testload() {
-    spriteblock.src = "./assets/block.png"
-    spriteground.src = "./assets/block-1.png"
-    spritelava.src = "./assets/block-2.png"
-    spritebridge.src = "./assets/bridge.png"
-    spritemario.src = "./assets/mario-2.png"
-}
+spritemario.src = ASSETPATH+"mario-2.png"
+const spritebg1 = new Image()
+spritebg1.src = ASSETPATH+"bg-1.png"
+const spritebg2 = new Image()
+spritebg2.src = ASSETPATH+"bg-2.png"
 
 const font = new Image()
-font.src = "./assets/font.png"
+font.src = ASSETPATH+"font.png"
