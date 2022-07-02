@@ -43,7 +43,6 @@ function buttonBlock(callback,text,x,y,centered) {
         ctx.fillStyle = 'black'
         ctx.fillRect(x+xoffset,y+yoffset,236,128)
         ctx.globalAlpha = 1
-        console.log("entrato")
     }
 
     if(centered) {
@@ -77,7 +76,7 @@ function buttonBlock(callback,text,x,y,centered) {
     addEventListener('mousedown',({pageX,pageY}) => {
         if(!running) {
             mousedown = true
-            btnstyle = 2
+            if(pageX>x+xoffset && pageX<x+width+xoffset-4 && pageY>y+yoffset && pageY<y+height+yoffset) btnstyle = 2
         }
         // {
             // if(pageX>x+xoffset && pageX<x+width+xoffset && pageY>y+yoffset && pageY<y+height+yoffset) btnstyle = 2

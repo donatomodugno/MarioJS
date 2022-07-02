@@ -6,6 +6,12 @@ https://donatomodugno.github.io/MarioJS
 
 Changelog
 ###
+* 0.3.2: _Saltiamo al mio tre_
+    - Fixed bug: infinite jumping
+    - Added constants to enable bouncing and hopping
+    - Fixed background positioning
+    - Added background functions for scrolling
+    - Changelog changed
 * 0.3.1: _Parallax la mia gioiax_
     - Mobile gestures improved again
     - Added parallax backgrounds
@@ -48,7 +54,7 @@ Changelog
 * 0.2.2: _Commit post-esame di Software Engineering_
     - Improved clearOutside function
     - Improved background functionalities
-    - Fixed "crossing block while scrolling" bug
+    - Fixed bug: crossing block while scrolling
     - Added ground block
     - Added fall death scenario
     - Implemented player acceleration (commented, still buggy)
@@ -57,7 +63,7 @@ Changelog
 * 0.2.1: _Commit pre-esame di Software Engineering_
     - More code abstraction
     - Created grid and grid system
-    - Fixed "little fall after fall" bug with more detailed functions
+    - Fixed bug "little fall after fall" with more detailed functions
     - Fixed bigger border problems
 * 0.2
     - Fixed air-jumping bug

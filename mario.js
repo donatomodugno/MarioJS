@@ -12,8 +12,12 @@ function waluigi() {
     music.play()
 }
 
-function musicStop() {
+function waluigiStop() {
     music.pause();
+    music.currentTime = 0;
+}
+
+function waluigiRestart() {
     music.currentTime = 0;
 }
 
@@ -27,13 +31,23 @@ function drawBounds() {
 }
 
 function drawBackground() {
+    function infiniteBackground(sprite,xoffset,yoffset,width,zoom=1,factor=1) {
+        ctx.drawImage(sprite,xoffset,yoffset,width/zoom,BH/zoom,BX-scrollOffset%width/factor,BY,width,BH)
+        ctx.drawImage(sprite,xoffset,yoffset,width/zoom,BH/zoom,BX-scrollOffset%width/factor+width,BY,width,BH)
+    }
+    function tiledBackground(sprite,xoffset,yoffset,width,height,zoom=1) {
+        for(let i=0;i*height*zoom<BH;i++)
+            for(let j=0;j*width*zoom<BW;j++)
+                ctx.drawImage(sprite,xoffset,yoffset,width,height,BX+j*width*zoom,BY+i*height*zoom,width*zoom,height*zoom)
+    }
+
     let gradient = ctx.createLinearGradient(0,0,0,BH)
     gradient.addColorStop(0,'#fdd')
     gradient.addColorStop(1,'#ddf')
-    ctx.fillStyle = /* gradient// */'#ddd'
+    ctx.fillStyle = gradient//'#ddd'
     ctx.fillRect(BX,BY,BW,BH)
     ctx.drawImage(spritebg2,8,16*4,BW/4*3,BH/4,BX-scrollOffset/4,BY,BW*3,BH)
-    ctx.drawImage(spritebg1,8+236,16*4,BW/4*3,BH/4,BX-scrollOffset/2,BY,BW*3,BH)
+    ctx.drawImage(spritebg1,8,16*4+236,BW/4*3,BH/4,BX-scrollOffset/2,BY,BW*3,BH)
 }
 
 function clearOutside() {
@@ -47,9 +61,11 @@ function clearOutside() {
 
 function drawGrid() {
     const gridOffset = -scrollOffset%BLOCKSIZE
+    // ctx.globalAlpha = 0.2
     ctx.fillStyle = "#ccc"
     for(let i=0;i<BLOCKROWS;i++) ctx.fillRect(BX,BY+BLOCKSIZE*i,BW+1,1)
     for(let i=0;i<BLOCKCOLS+1;i++) ctx.fillRect(BX+BLOCKSIZE*i+gridOffset,BY,1,BH)
+    // ctx.globalAlpha = 1
 }
 
 function blockCoord(offset,pos,inverted) {
@@ -63,6 +79,10 @@ const keys = {
     },
     right: {
         pressed:false
+    },
+    up: {
+        pressed:false,
+        checked:false
     }
 }
 
@@ -103,6 +123,12 @@ class Player {
         ctx.drawImage(spritemario,spriteframe[0]*100+50-BLOCKSIZE/2,spriteframe[1]*100+50-BLOCKSIZE,32,64,this.position.x,this.position.y-8,32,64)
     }
 
+    jump() {
+        this.jumping = true
+        this.velocity.y = JUMP
+        audiojump.play()
+    }
+
     land(pos,top) {
         this.velocity.y = 0
         if(pos) this.position.y = top ? pos : pos-this.height
@@ -139,7 +165,12 @@ class Platform {
     }
 
     draw() {
-        for(let i=0;i<this.blocks;i++) ctx.drawImage(spritebridge,this.position.x+i*32,this.position.y,BLOCKSIZE,BLOCKSIZE)
+        //Bridge
+        for(let i=0;i<this.blocks;i++) ctx.drawImage(spritebridge,this.position.x+i*BLOCKSIZE,this.position.y,BLOCKSIZE,BLOCKSIZE)
+        //BGO
+        ctx.drawImage(spritebgo1,this.position.x,this.position.y-BLOCKSIZE,BLOCKSIZE,BLOCKSIZE)
+        for(let i=1;i<this.blocks-1;i++) ctx.drawImage(spritebgo0,this.position.x+i*BLOCKSIZE,this.position.y-BLOCKSIZE,BLOCKSIZE,BLOCKSIZE)
+        ctx.drawImage(spritebgo2,this.position.x+(this.blocks-1)*BLOCKSIZE,this.position.y-BLOCKSIZE,BLOCKSIZE,BLOCKSIZE)
     }
 }
 
@@ -214,9 +245,10 @@ function mobileControls() {
         if(running && isMobile) {
             if(ypos>BY+BH+200 && ypos<BY+BH+200+BH/2) {
                 if(!player.jumping) {
-                    player.jumping = true
-                    player.velocity.y = -16//-18//-10
-                    audiojump.play()
+                    player.jump()
+                    // player.jumping = true
+                    // player.velocity.y = -16//-18//-10
+                    // audiojump.play()
                 }
             }
             if(ypos>BY+BH+200+BH/2 && xpos<BX+BW/2) {
@@ -293,11 +325,11 @@ function animate() {
         }
 
         function playerDeath() {
+            waluigiRestart()
             cameraReset()
             player = new Player({x:blockCoord(BX,3),y:blockCoord(BY+BH,14,true)})
             audiodied.play()
             // alert("Hai perso")
-            music.pause()
         }
 
         // Fall death
@@ -395,6 +427,14 @@ function animate() {
     checkCollisions()
     cameraMove()
     scrollDirection=0
+    if(keys.up.pressed) {
+        if(!keys.up.checked || BOUNCE && !player.jumping) {
+            if(!player.jumping || HIPNHOP) {
+                player.jump()
+            }
+        }
+        keys.up.checked = true
+    }
 
     // Win scenario
     if(scrollOffset>2000) {
@@ -431,11 +471,7 @@ addEventListener('keydown',({key}) => {
     switch(key) {
         case 'ArrowUp':
             //up
-            if(!player.jumping) {
-                player.jumping = true
-                player.velocity.y = -16//-18//-10
-                audiojump.play()
-            }
+            keys.up.pressed = true
             break
         case 'ArrowLeft':
             //left
@@ -455,6 +491,8 @@ addEventListener('keyup',({key}) => {
     switch(key) {
         case 'ArrowUp':
             //up
+            keys.up.pressed = false
+            keys.up.checked = false
             break
         case 'ArrowLeft':
             //left
