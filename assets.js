@@ -1,9 +1,9 @@
 const canvas = document.querySelector('canvas')
 const ctx = canvas.getContext('2d')
-canvas.width = innerWidth
-canvas.height = innerHeight
+canvas.width = innerWidth//1000
+canvas.height = innerHeight//800
 
-const VERSION = "0.3.2"
+const VERSION = "0.3.3"
 const CORNERLABEL = "MarioJS " + VERSION
 const BLOCKSIZE = 32
 const BLOCKCOLS = 24//*32
@@ -42,9 +42,45 @@ spritebgo2.src = ASSETPATH+"bgo-2.png"
 const spritemario = new Image()
 spritemario.src = ASSETPATH+"mario-2.png"
 const spritebg1 = new Image()
-spritebg1.src = ASSETPATH+"bg-1.png"
+spritebg1.src = ASSETPATH+"bg1-1.png"
 const spritebg2 = new Image()
-spritebg2.src = ASSETPATH+"bg-2.png"
+spritebg2.src = ASSETPATH+"bg1-2.png"
+const spritebg3 = new Image()
+spritebg3.src = ASSETPATH+"bg1-3.png"
+const spritesheet = new Image()
+spritesheet.src = ASSETPATH+"smb1-sheet.png"
 
 const font = new Image()
 font.src = ASSETPATH+"font.png"
+
+//// Global variables ////
+const keys = {
+    left: {
+        pressed:false
+    },
+    right: {
+        pressed:false
+    },
+    up: {
+        pressed:false,
+        checked:false
+    }
+}
+const mouse = {
+    x:0,
+    y:0,
+    left: {
+        pressed:false,
+        checked:false,
+        x:0,
+        y:0
+    },
+    right: {
+        pressed:false,
+        checked:false,
+        x:0,
+        y:0
+    }
+}
+let tick = 0
+let isMobile = false

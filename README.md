@@ -5,7 +5,13 @@ My first Mario clone in JavaScript
 https://donatomodugno.github.io/MarioJS
 
 Changelog
-###
+---
+* 0.3.3: _Salta che ti passa - parte 1_
+    - Animated Mario walking sprite
+    - Added platform width (thanks to Andrea Caruso)
+    - Created ButtonBlock class and menu.js
+    - Added NPCs (Peach, Goombas...)
+    - Peach (win scenario) fully implemented
 * 0.3.2: _Saltiamo al mio tre_
     - Fixed bug: infinite jumping
     - Added constants to enable bouncing and hopping

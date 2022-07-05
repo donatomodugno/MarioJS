@@ -36,9 +36,11 @@ function drawBackground() {
         ctx.drawImage(sprite,xoffset,yoffset,width/zoom,BH/zoom,BX-scrollOffset%width/factor+width,BY,width,BH)
     }
     function tiledBackground(sprite,xoffset,yoffset,width,height,zoom=1) {
+        // ctx.filter = "blur(5px)"
         for(let i=0;i*height*zoom<BH;i++)
             for(let j=0;j*width*zoom<BW;j++)
                 ctx.drawImage(sprite,xoffset,yoffset,width,height,BX+j*width*zoom,BY+i*height*zoom,width*zoom,height*zoom)
+        // ctx.filter = "blur()"
     }
 
     let gradient = ctx.createLinearGradient(0,0,0,BH)
@@ -46,6 +48,7 @@ function drawBackground() {
     gradient.addColorStop(1,'#ddf')
     ctx.fillStyle = gradient//'#ddd'
     ctx.fillRect(BX,BY,BW,BH)
+    tiledBackground(spritebg3,0,BLOCKSIZE,64,239,3)
     ctx.drawImage(spritebg2,8,16*4,BW/4*3,BH/4,BX-scrollOffset/4,BY,BW*3,BH)
     ctx.drawImage(spritebg1,8,16*4+236,BW/4*3,BH/4,BX-scrollOffset/2,BY,BW*3,BH)
 }
@@ -57,33 +60,18 @@ function clearOutside() {
     ctx.clearRect(BX-BTHICK,BY+BH+BTHICK,BW+BTHICK*2,canvas.height-BY-BH-BTHICK)
 }
 
-// Functions and classes {
-
-function drawGrid() {
+function drawGrid(opacity=1) {
     const gridOffset = -scrollOffset%BLOCKSIZE
-    // ctx.globalAlpha = 0.2
+    ctx.globalAlpha = opacity
     ctx.fillStyle = "#ccc"
     for(let i=0;i<BLOCKROWS;i++) ctx.fillRect(BX,BY+BLOCKSIZE*i,BW+1,1)
     for(let i=0;i<BLOCKCOLS+1;i++) ctx.fillRect(BX+BLOCKSIZE*i+gridOffset,BY,1,BH)
-    // ctx.globalAlpha = 1
+    ctx.globalAlpha = 1
 }
 
-function blockCoord(offset,pos,inverted) {
+function blockCoord(offset,pos,inverted=false) {
     if(inverted) return offset-BLOCKSIZE*(pos+1)
     return offset+BLOCKSIZE*pos
-}
-
-const keys = {
-    left: {
-        pressed:false
-    },
-    right: {
-        pressed:false
-    },
-    up: {
-        pressed:false,
-        checked:false
-    }
 }
 
 function resetKeys() {
@@ -107,20 +95,29 @@ class Player {
         this.colliding = false
         this.direction = 1
         this.acceleration = ACCELERATION
+        this.frames = 1
+        this.frame = 0
         this.id = id
     }
 
     draw() {
         // ctx.fillStyle = 'red'
         // ctx.fillRect(this.position.x,this.position.y,this.width,this.height)
-        const spriteframe = [0,0]
+        const spriteframe = []
         if(playerMoving==0 && this.direction==1) spriteframe.splice(0,2,5,0)
         if(playerMoving==0 && this.direction==0) spriteframe.splice(0,2,4,8)
-        if(playerMoving==1) spriteframe.splice(0,2,5,1)
-        if(playerMoving==-1) spriteframe.splice(0,2,4,7)
-        if(this.jumping==true && this.direction==1) spriteframe.splice(1,1,3)
-        if(this.jumping==true && this.direction==0) spriteframe.splice(1,1,5)
-        ctx.drawImage(spritemario,spriteframe[0]*100+50-BLOCKSIZE/2,spriteframe[1]*100+50-BLOCKSIZE,32,64,this.position.x,this.position.y-8,32,64)
+        if(playerMoving!=0 && !this.jumping) this.frames = 2
+        else this.frames = 1
+        if(playerMoving==1) spriteframe.splice(0,2,5,1,5,0)
+        if(playerMoving==-1) spriteframe.splice(0,2,4,7,4,8)
+        if(this.jumping && this.direction==1) spriteframe[1]=3//.splice(1,1,3)
+        if(this.jumping && this.direction==0) spriteframe[1]=5//.splice(1,1,5)
+        if(this.frames == 1) ctx.drawImage(spritemario,spriteframe[0]*100+50-BLOCKSIZE/2,spriteframe[1]*100+50-BLOCKSIZE,32,64,this.position.x,this.position.y-8,32,64)
+        else {
+            tick%8==0 && this.frame++
+            if(this.frame==this.frames) this.frame = 0
+            ctx.drawImage(spritemario,spriteframe[this.frame*2]*100+50-BLOCKSIZE/2,spriteframe[this.frame*2+1]*100+50-BLOCKSIZE,32,64,this.position.x,this.position.y-8,32,64)
+        }
     }
 
     jump() {
@@ -150,7 +147,7 @@ class Player {
 }
 
 class Platform {
-    constructor({x,y}) {
+    constructor({x,y,n}) {
         this.position = {
             x,
             y
@@ -159,7 +156,7 @@ class Platform {
             x,
             y,
         }
-        this.blocks = 6
+        this.blocks = n
         this.width = BLOCKSIZE*this.blocks
         this.height = BLOCKSIZE
     }
@@ -200,30 +197,92 @@ class Block {
                 ctx.drawImage(spriteground,this.position.x,this.position.y,this.width,this.height)
                 break;
             case 2:
+                // ctx.fillStyle = '#c00'
+                // ctx.fillRect(this.position.x,this.position.y,this.width,this.height)
                 ctx.drawImage(spritelava,0,BLOCKSIZE*this.frame,BLOCKSIZE,BLOCKSIZE,this.position.x,this.position.y,this.width,this.height)
                 tick%8==0 && this.frame++
                 if(this.frame==4) this.frame=0
-                // ctx.fillStyle = '#c00'
-                // ctx.fillRect(this.position.x,this.position.y,this.width,this.height)
                 break;
         }
+    }
+}
+
+class NPC {
+    constructor({x,y},id=0) {
+        this.position = {
+            x,
+            y,
+        }
+        this.startpos = {
+            x,
+            y,
+        }
+        this.velocity = {
+            x: id>0 ? -1 : 0,
+            y:1
+        }
+        this.width = BLOCKSIZE
+        this.height = BLOCKSIZE*(id>0 ? 1 : 2)
+        this.frame = 0
+        this.alive = true
+        this.id = id
+    }
+
+    draw() {
+        switch(this.id) {
+            case 0:
+                // Win
+                ctx.drawImage(spritesheet,8+40*9,-1+40*5,16,32,this.position.x,this.position.y,this.width,this.height)
+                break;
+            case 1:
+                ctx.drawImage(spritesheet,8+40*this.frame,7+40*6,16,16,this.position.x,this.position.y,this.width,this.height)
+                tick%8==0 && this.frame++
+                if(this.frame==2) this.frame=0
+                break;
+            case 2:
+                break;
+        }
+    }
+
+    death() {
+        this.alive = false
+        switch(this.id) {
+            case 0:
+                // Win
+                break;
+            case 1:
+                this.frame = 2
+                ctx.drawImage(spritesheet,8+40*this.frame,3+40*6,16,16,this.position.x,this.position.y,this.width,this.height)
+                break;
+            case 2:
+                break;
+        }
+    }
+
+    update() {
+        if(this.alive) {
+            this.position.x += this.velocity.x
+            this.position.y += this.velocity.y
+            this.velocity.y += GRAVITY
+            this.draw()
+        } else this.death()
     }
 }
 
 let player
 const platforms = []
 const blocks = []
+const npc = []
 function parseLevel() {
-    player = new Player({x:blockCoord(BX,level.player[0].x),y:blockCoord(BY+BH,level.player[0].y,true)})
-    level.platform.forEach(p => platforms.push(new Platform({x:blockCoord(BX,p.x),y:blockCoord(BY+BH,p.y,true)})))
-    level.block.forEach(b => blocks.push(new Block({x:blockCoord(BX,b.x),y:blockCoord(BY+BH,b.y,true)},b.id,b.id==2 && true)))
+    player = new Player({x:blockCoord(BX,level1.player[0].x),y:blockCoord(BY+BH,level1.player[0].y,true)})
+    level1.platform.forEach(p => platforms.push(new Platform({x:blockCoord(BX,p.x),y:blockCoord(BY+BH,p.y,true),n:p.n})))
+    level1.block.forEach(b => blocks.push(new Block({x:blockCoord(BX,b.x),y:blockCoord(BY+BH,b.y,true)},b.id,b.id==2 && true)))
+    level1.npc.forEach(e => npc.push(new NPC({x:blockCoord(BX,e.x),y:blockCoord(BY+BH,e.y,true)},e.id)))
 }
 
 let scrollOffset = 0
 let scrollDirection = 0
 let playerMoving = 0
-let tick = 0
-let isMobile = 0
 
 function mobileControls() {
     if(isMobile) {
@@ -238,41 +297,17 @@ function mobileControls() {
         ctx.fillText("<",BW/4,BY+BH*2+100)
         ctx.fillText(">",3*BW/4,BY+BH*2+100)
     }
-
-    addEventListener('touchstart'/*mousedown*/,(e) => {
-        const xpos = e.changedTouches[0].pageX//.pageX//.originalEvent.touches[0].pageX
-        const ypos = e.changedTouches[0].pageY//.pageY//.originalEvent.touches[0].pageY
-        if(running && isMobile) {
-            if(ypos>BY+BH+200 && ypos<BY+BH+200+BH/2) {
-                if(!player.jumping) {
-                    player.jump()
-                    // player.jumping = true
-                    // player.velocity.y = -16//-18//-10
-                    // audiojump.play()
-                }
-            }
-            if(ypos>BY+BH+200+BH/2 && xpos<BX+BW/2) {
-                keys.left.pressed = true
-            }
-            if(ypos>BY+BH+200+BH/2 && xpos>BX+BW/2) {
-                keys.right.pressed = true
-            }
-        }
-    })
-
-    addEventListener('touchend'/*mouseup*/,(e) => {
-        const xpos = e.changedTouches[0].pageX//.pageX//.originalEvent.touches[0].pageX
-        const ypos = e.changedTouches[0].pageY//.pageY//.originalEvent.touches[0].pageY
-        if(running && isMobile && ypos>BY+BH+200+BH/2) {
-            if(keys.left.pressed) {
-                keys.left.pressed = false
-            }
-            if(keys.right.pressed) {
-                keys.right.pressed = false
-            }
-        }
-    })
 }
+
+function npcDeath(i) {
+    npc[i].alive = false
+    if(tick%8==0) npc.splice(i,1)
+}
+
+// addEventListener('mousedown',(e) => {
+//     // console.log('debug')
+//     npcDeath(0)
+// })
 
 // Main function
 function animate() {
@@ -280,6 +315,8 @@ function animate() {
         requestAnimationFrame(animate)
         requestAnimationFrame(mobileControls)
     }
+    tick==63 ? tick = 0 : tick++
+    
     player.jumping = true
     player.colliding = false
 
@@ -287,12 +324,14 @@ function animate() {
         scrollOffset += scrollDirection*SPEED
         platforms.forEach(p => p.position.x -= scrollDirection*SPEED)
         blocks.forEach(b => b.position.x -= scrollDirection*SPEED)
+        npc.forEach(e => e.position.x -= scrollDirection*SPEED)
     }
 
     function cameraReset() {
         scrollOffset = 0
         platforms.forEach(p => p.position.x = p.startpos.x)
         blocks.forEach(b => b.position.x = b.startpos.x)
+        npc.forEach(e => e.position.x = e.startpos.x)
     }
 
     function checkCollisions() {
@@ -327,9 +366,19 @@ function animate() {
         function playerDeath() {
             waluigiRestart()
             cameraReset()
+            // alert("Hai perso")
             player = new Player({x:blockCoord(BX,3),y:blockCoord(BY+BH,14,true)})
             audiodied.play()
-            // alert("Hai perso")
+            npc.forEach(e => e.alive = true)
+        }
+
+        function playerWin() {
+            resetKeys()
+            cameraReset()
+            let confirm = alert('You win!')
+            player = new Player({x:blockCoord(BX,3),y:blockCoord(BY+BH,14,true)})
+            npc.forEach(e => e.alive = true)
+            waluigiRestart()
         }
 
         // Fall death
@@ -369,7 +418,23 @@ function animate() {
                 player.collide(b.position.x+b.width,true)
                 scrollDirection = 0
             }
+            npc.forEach(e => {
+                if(checkCollisionDown(e.position.y+e.height,b.position.y,e.velocity.y,e.position.x+e.width,b.position.x,e.position.x,b.position.x+b.width))
+                    e.velocity.y = 0
+                if(checkCollisionRight(e.position.x+e.width,b.position.x,e.velocity.x,e.position.y+e.height,b.position.y,e.position.y,b.position.y+b.height)
+                || checkCollisionLeft(e.position.x,b.position.x+b.width,e.velocity.x,e.position.y+e.height,b.position.y,e.position.y,b.position.y+b.height))
+                    e.velocity.x = -e.velocity.x
+                // if(checkCollisionLeft(e.position.x,b.position.x+b.width,e.velocity.x,e.position.y+e.height,b.position.y,e.position.y,b.position.y+b.height))
+                //     e.velocity.x = -e.velocity.x
+            })
         })
+        npc.filter(e => e.id==0).forEach(e => {
+            if(checkCollisionDown(player.position.y+player.height,e.position.y,player.velocity.y,player.position.x+player.width,e.position.x,player.position.x,e.position.x+e.width)
+            || checkCollisionRight(player.position.x+player.width,e.position.x,xdiff,player.position.y+player.height,e.position.y,player.position.y,e.position.y+e.height)
+            || checkCollisionLeft(player.position.x,e.position.x+e.width,xdiff,player.position.y+player.height,e.position.y,player.position.y,e.position.y+e.height)
+            || checkCollisionUp(player.position.y,e.position.y+e.height,player.velocity.y,player.position.x+player.width,e.position.x,player.position.x,e.position.x+e.width))
+                playerWin()
+        });
     }
 
 
@@ -436,80 +501,29 @@ function animate() {
         keys.up.checked = true
     }
 
-    // Win scenario
-    if(scrollOffset>2000) {
-        resetKeys()
-        alert('You win!')
-        cameraReset()
-        player = new Player({x:blockCoord(BX,3),y:blockCoord(BY+BH,14,true)})
-    }
+    // // Win scenario
+    // if(scrollOffset>2000) {
+    //     resetKeys()
+    //     alert('You win!')
+    //     cameraReset()
+    //     player = new Player({x:blockCoord(BX,3),y:blockCoord(BY+BH,14,true)})
+    // }
     
     // Drawing functions
     /* zIndex=-5 */ ctx.clearRect(0,0,canvas.width,canvas.height)
     /* zIndex=-4 */ drawBackground()
-    /* zIndex=-3 */ drawGrid(scrollOffset)
+    /* zIndex=-3 */ drawGrid(/* 0.2 */)
     /* zIndex=-2 */ platforms.forEach(p => p.draw())
     /* zIndex=-1 */ blocks.forEach(b => b.draw())
     /* zIndex=0  */ player.update()
-    /* zIndex=+1 */ drawBounds()
-    /* zIndex=+2 */ clearOutside()
-    /* zIndex=+3 */ printVersion()
-
-    tick==64 ? tick = 0 : tick++
+    /* zIndex=+1 */ npc.forEach(e => e.update())
+    /* zIndex=+2 */ drawBounds()
+    /* zIndex=+3 */ clearOutside()
+    /* zIndex=+4 */ printVersion()
 }
-
 
 function MainGame() {
     waluigi()
     parseLevel()
     animate()
 }
-
-//// Event Listeners ////
-
-addEventListener('keydown',({key}) => {
-    switch(key) {
-        case 'ArrowUp':
-            //up
-            keys.up.pressed = true
-            break
-        case 'ArrowLeft':
-            //left
-            keys.left.pressed = true
-            break
-        case 'ArrowDown':
-            //down
-            break
-        case 'ArrowRight':
-            //right
-            keys.right.pressed = true
-            break
-    }
-})
-
-addEventListener('keyup',({key}) => {
-    switch(key) {
-        case 'ArrowUp':
-            //up
-            keys.up.pressed = false
-            keys.up.checked = false
-            break
-        case 'ArrowLeft':
-            //left
-            keys.left.pressed = false
-            break
-        case 'ArrowDown':
-            //down
-            break
-        case 'ArrowRight':
-            //right
-            keys.right.pressed = false
-            break
-    }
-})
-
-addEventListener('mousedown',(e) => {
-    // console.log(e.button)
-    // console.log(player.acceleration,player.velocity.x)
-})
-// }
