@@ -15,15 +15,21 @@ const level1 = {
         {x:6,y:12},
         {x:21,y:1},
         {x:21,y:2},
-        {x:21,y:3}
+        {x:21,y:3},
+        {x:36,y:1,id:3,width:BLOCKSIZE*2},
+        {x:36,y:2,id:3,width:BLOCKSIZE*2},
+        {x:36,y:3,id:4,width:BLOCKSIZE*2},
+        {x:58,y:1,id:3,width:BLOCKSIZE*2},
+        {x:58,y:2,id:4,width:BLOCKSIZE*2}
     ],
     platform:[
         {x:6,y:6,n:6},
         {x:24,y:3,n:5}
     ],
     npc:[
-        {x:76,y:2,id:0}
-        // {x:16,y:2,id:1},
-        // {x:40,y:2,id:1}
+        {x:9,y:10,id:1},
+        {x:76,y:2,id:0},
+        {x:16,y:2,id:1},
+        {x:30,y:2,id:1}
     ]
 }

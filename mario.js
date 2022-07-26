@@ -6,18 +6,18 @@ function printVersion() {
     ctx.fillText(CORNERLABEL,BX-BTHICK+2,BY+BH+BTHICK-2)
 }
 
-function waluigi() {
+function musicPlay() {
     music.loop = true
     music.volume = "0.2"
     music.play()
 }
 
-function waluigiStop() {
+function musicStop() {
     music.pause();
     music.currentTime = 0;
 }
 
-function waluigiRestart() {
+function musicRestart() {
     music.currentTime = 0;
 }
 
@@ -31,9 +31,9 @@ function drawBounds() {
 }
 
 function drawBackground() {
-    function infiniteBackground(sprite,xoffset,yoffset,width,zoom=1,factor=1) {
-        ctx.drawImage(sprite,xoffset,yoffset,width/zoom,BH/zoom,BX-scrollOffset%width/factor,BY,width,BH)
-        ctx.drawImage(sprite,xoffset,yoffset,width/zoom,BH/zoom,BX-scrollOffset%width/factor+width,BY,width,BH)
+    function infiniteBackground(sprite,spritexoffset,spriteyoffset,width,zoom=1,factor=1) {
+        ctx.drawImage(sprite,spritexoffset,spriteyoffset,width,BH/zoom,BX-(scrollOffset/factor)%(width*zoom),BY,width*zoom,BH)
+        ctx.drawImage(sprite,spritexoffset,spriteyoffset,width,BH/zoom,BX-(scrollOffset/factor)%(width*zoom)+width*zoom,BY,width*zoom,BH)
     }
     function tiledBackground(sprite,xoffset,yoffset,width,height,zoom=1) {
         // ctx.filter = "blur(5px)"
@@ -49,13 +49,13 @@ function drawBackground() {
     ctx.fillStyle = gradient//'#ddd'
     ctx.fillRect(BX,BY,BW,BH)
     tiledBackground(spritebg3,0,BLOCKSIZE,64,239,3)
-    ctx.drawImage(spritebg2,8,16*4,BW/4*3,BH/4,BX-scrollOffset/4,BY,BW*3,BH)
-    ctx.drawImage(spritebg1,8,16*4+236,BW/4*3,BH/4,BX-scrollOffset/2,BY,BW*3,BH)
+    infiniteBackground(spritebg2,0,16*3,512,4,4)
+    ctx.drawImage(spritebg1,0,4*13,1792,BH/4,BX-scrollOffset/2,BY,1792*4,BH)
 }
 
 function clearOutside() {
     ctx.clearRect(0,0,BX-BTHICK,canvas.height)
-    ctx.clearRect(BX+BW+BTHICK,0,canvas.width-BX-BW-BTHICK,canvas.height)
+    ctx.clearRect(BX+BW+BTHICK-1,0,canvas.width-BX-BW-BTHICK,canvas.height)
     ctx.clearRect(BX-BTHICK,0,BW+BTHICK*2,BY-BTHICK)
     ctx.clearRect(BX-BTHICK,BY+BH+BTHICK,BW+BTHICK*2,canvas.height-BY-BH-BTHICK)
 }
@@ -104,19 +104,34 @@ class Player {
         // ctx.fillStyle = 'red'
         // ctx.fillRect(this.position.x,this.position.y,this.width,this.height)
         const spriteframe = []
-        if(playerMoving==0 && this.direction==1) spriteframe.splice(0,2,5,0)
-        if(playerMoving==0 && this.direction==0) spriteframe.splice(0,2,4,8)
-        if(playerMoving!=0 && !this.jumping) this.frames = 2
+        // if(playerMoving==0 && this.direction==1) spriteframe.splice(0,2,5,0)
+        // if(playerMoving==0 && this.direction==0) spriteframe.splice(0,2,4,8)
+        // if(playerMoving!=0 && !this.jumping) this.frames = 2
+        // else this.frames = 1
+        // if(playerMoving==1) spriteframe.splice(0,2,5,1,5,0)
+        // if(playerMoving==-1) spriteframe.splice(0,2,4,7,4,8)
+        // if(this.jumping && this.direction==1) spriteframe[1]=3//.splice(1,1,3)
+        // if(this.jumping && this.direction==0) spriteframe[1]=5//.splice(1,1,5)
+        // if(this.frames == 1) ctx.drawImage(spritemario,spriteframe[0]*100+50-BLOCKSIZE/2,spriteframe[1]*100+50-BLOCKSIZE,32,64,this.position.x,this.position.y-8,32,64)
+        // else {
+        //     tick%8==0 && this.frame++
+        //     if(this.frame==this.frames) this.frame = 0
+        //     ctx.drawImage(spritemario,spriteframe[this.frame*2]*100+50-BLOCKSIZE/2,spriteframe[this.frame*2+1]*100+50-BLOCKSIZE,32,64,this.position.x,this.position.y-8,32,64)
+        // }
+        if(playerMoving==0 && this.direction==1) spriteframe.splice(0,2,0,0)
+        if(playerMoving==0 && this.direction==0) spriteframe.splice(0,2,4,0)
+        if(playerMoving!=0 && !this.jumping) this.frames = 3
         else this.frames = 1
-        if(playerMoving==1) spriteframe.splice(0,2,5,1,5,0)
-        if(playerMoving==-1) spriteframe.splice(0,2,4,7,4,8)
-        if(this.jumping && this.direction==1) spriteframe[1]=3//.splice(1,1,3)
-        if(this.jumping && this.direction==0) spriteframe[1]=5//.splice(1,1,5)
-        if(this.frames == 1) ctx.drawImage(spritemario,spriteframe[0]*100+50-BLOCKSIZE/2,spriteframe[1]*100+50-BLOCKSIZE,32,64,this.position.x,this.position.y-8,32,64)
+        if(playerMoving==1) spriteframe.splice(0,2,0,0,1,0,2,0)
+        if(playerMoving==-1) spriteframe.splice(0,2,4,0,5,0,6,0)
+        if(this.jumping && this.direction==1) spriteframe.splice(0,2,0,1)
+        if(this.jumping && this.direction==0) spriteframe.splice(0,2,4,1)
+
+        if(this.frames == 1) ctx.drawImage(spritemario,spriteframe[0]*64,spriteframe[1]*64,32,64,this.position.x,this.position.y-8,32,64)
         else {
-            tick%8==0 && this.frame++
+            tick%4==0 && this.frame++
             if(this.frame==this.frames) this.frame = 0
-            ctx.drawImage(spritemario,spriteframe[this.frame*2]*100+50-BLOCKSIZE/2,spriteframe[this.frame*2+1]*100+50-BLOCKSIZE,32,64,this.position.x,this.position.y-8,32,64)
+            ctx.drawImage(spritemario,spriteframe[this.frame*2]*64,spriteframe[this.frame*2+1]*64,32,64,this.position.x,this.position.y-8,32,64)
         }
     }
 
@@ -172,7 +187,7 @@ class Platform {
 }
 
 class Block {
-    constructor({x,y},id=0,lava=false) {
+    constructor({x,y},id=0,lava=false,width=BLOCKSIZE,height=BLOCKSIZE) {
         this.position = {
             x,
             y,
@@ -181,8 +196,8 @@ class Block {
             x,
             y,
         }
-        this.width = BLOCKSIZE
-        this.height = BLOCKSIZE
+        this.width = width
+        this.height = height
         this.lava = lava
         this.frame = 0
         this.id = id
@@ -202,6 +217,12 @@ class Block {
                 ctx.drawImage(spritelava,0,BLOCKSIZE*this.frame,BLOCKSIZE,BLOCKSIZE,this.position.x,this.position.y,this.width,this.height)
                 tick%8==0 && this.frame++
                 if(this.frame==4) this.frame=0
+                break;
+            case 3:
+                ctx.drawImage(spritepipe,this.position.x,this.position.y,this.width,this.height)
+                break;
+            case 4:
+                ctx.drawImage(spritepipetop,this.position.x,this.position.y,this.width,this.height)
                 break;
         }
     }
@@ -235,9 +256,14 @@ class NPC {
                 ctx.drawImage(spritesheet,8+40*9,-1+40*5,16,32,this.position.x,this.position.y,this.width,this.height)
                 break;
             case 1:
-                ctx.drawImage(spritesheet,8+40*this.frame,7+40*6,16,16,this.position.x,this.position.y,this.width,this.height)
-                tick%8==0 && this.frame++
-                if(this.frame==2) this.frame=0
+                if(this.alive) {
+                    ctx.drawImage(spritesheet,8+40*this.frame,7+40*6,16,16,this.position.x,this.position.y,this.width,this.height)
+                    tick%8==0 && this.frame++
+                    if(this.frame>=2) this.frame=0
+                } else {
+                    this.frame = 2
+                    ctx.drawImage(spritesheet,8+40*this.frame,3+40*6,16,16,this.position.x,this.position.y,this.width,this.height)
+                }
                 break;
             case 2:
                 break;
@@ -251,8 +277,7 @@ class NPC {
                 // Win
                 break;
             case 1:
-                this.frame = 2
-                ctx.drawImage(spritesheet,8+40*this.frame,3+40*6,16,16,this.position.x,this.position.y,this.width,this.height)
+                audiostomp.play()
                 break;
             case 2:
                 break;
@@ -264,8 +289,8 @@ class NPC {
             this.position.x += this.velocity.x
             this.position.y += this.velocity.y
             this.velocity.y += GRAVITY
-            this.draw()
-        } else this.death()
+        }
+        this.draw()
     }
 }
 
@@ -276,10 +301,9 @@ const npc = []
 function parseLevel() {
     player = new Player({x:blockCoord(BX,level1.player[0].x),y:blockCoord(BY+BH,level1.player[0].y,true)})
     level1.platform.forEach(p => platforms.push(new Platform({x:blockCoord(BX,p.x),y:blockCoord(BY+BH,p.y,true),n:p.n})))
-    level1.block.forEach(b => blocks.push(new Block({x:blockCoord(BX,b.x),y:blockCoord(BY+BH,b.y,true)},b.id,b.id==2 && true)))
+    level1.block.forEach(b => blocks.push(new Block({x:blockCoord(BX,b.x),y:blockCoord(BY+BH,b.y,true)},b.id,b.id==2 && true,b.width,b.height)))
     level1.npc.forEach(e => npc.push(new NPC({x:blockCoord(BX,e.x),y:blockCoord(BY+BH,e.y,true)},e.id)))
 }
-
 let scrollOffset = 0
 let scrollDirection = 0
 let playerMoving = 0
@@ -304,6 +328,42 @@ function npcDeath(i) {
     if(tick%8==0) npc.splice(i,1)
 }
 
+function cameraMove() {
+    scrollOffset += scrollDirection*SPEED
+    platforms.forEach(p => p.position.x -= scrollDirection*SPEED)
+    blocks.forEach(b => b.position.x -= scrollDirection*SPEED)
+    npc.forEach(e => e.position.x -= scrollDirection*SPEED)
+}
+
+function cameraReset() {
+    scrollOffset = 0
+    platforms.forEach(p => p.position.x = p.startpos.x)
+    blocks.forEach(b => b.position.x = b.startpos.x)
+    npc.forEach((e,i) => {
+        e.position.x = blockCoord(BX,level1.npc[i].x)
+        e.position.y = blockCoord(BY+BH,level1.npc[i].y,true)
+        e.velocity.x = level1.npc[i].id>0 ? -1 : 0
+    })
+}
+
+function playerDeath() {
+    musicRestart()
+    cameraReset()
+    // alert("Hai perso")
+    player = new Player({x:blockCoord(BX,3),y:blockCoord(BY+BH,14,true)})
+    audiodied.play()
+    npc.forEach(e => e.alive = true)
+}
+
+function playerWin() {
+    resetKeys()
+    cameraReset()
+    alert('You win!')
+    player = new Player({x:blockCoord(BX,3),y:blockCoord(BY+BH,14,true)})
+    npc.forEach(e => e.alive = true)
+    musicRestart()
+}
+
 // addEventListener('mousedown',(e) => {
 //     // console.log('debug')
 //     npcDeath(0)
@@ -319,20 +379,6 @@ function animate() {
     
     player.jumping = true
     player.colliding = false
-
-    function cameraMove() {
-        scrollOffset += scrollDirection*SPEED
-        platforms.forEach(p => p.position.x -= scrollDirection*SPEED)
-        blocks.forEach(b => b.position.x -= scrollDirection*SPEED)
-        npc.forEach(e => e.position.x -= scrollDirection*SPEED)
-    }
-
-    function cameraReset() {
-        scrollOffset = 0
-        platforms.forEach(p => p.position.x = p.startpos.x)
-        blocks.forEach(b => b.position.x = b.startpos.x)
-        npc.forEach(e => e.position.x = e.startpos.x)
-    }
 
     function checkCollisions() {
         function checkCollisionDown(ya,yb,ydiff,x1a=1,x1b=0,x2a=0,x2b=1) {
@@ -363,22 +409,11 @@ function animate() {
             return false
         }
 
-        function playerDeath() {
-            waluigiRestart()
-            cameraReset()
-            // alert("Hai perso")
-            player = new Player({x:blockCoord(BX,3),y:blockCoord(BY+BH,14,true)})
-            audiodied.play()
-            npc.forEach(e => e.alive = true)
-        }
-
-        function playerWin() {
-            resetKeys()
-            cameraReset()
-            let confirm = alert('You win!')
-            player = new Player({x:blockCoord(BX,3),y:blockCoord(BY+BH,14,true)})
-            npc.forEach(e => e.alive = true)
-            waluigiRestart()
+        function checkIntersection2D(x1a,x1b,x2a,x2b,y1a,y1b,y2a,y2b) {
+            if(x1a>x1b && x2a<x2b)
+                if(y1a>y1b && y2a<y2b)
+                    return true
+            return false
         }
 
         // Fall death
@@ -402,6 +437,10 @@ function animate() {
         platforms.forEach(p => {
             if(checkCollisionDown(player.position.y+player.height,p.position.y,player.velocity.y,player.position.x+player.width,p.position.x,player.position.x,p.position.x+p.width))
                 player.land(p.position.y)
+            npc.forEach(e => {
+                if(checkCollisionDown(e.position.y+e.height,p.position.y,e.velocity.y,e.position.x+e.width,p.position.x,e.position.x,p.position.x+p.width))
+                    e.velocity.y = 0
+            })
         })
 
         // Block collision
@@ -424,15 +463,22 @@ function animate() {
                 if(checkCollisionRight(e.position.x+e.width,b.position.x,e.velocity.x,e.position.y+e.height,b.position.y,e.position.y,b.position.y+b.height)
                 || checkCollisionLeft(e.position.x,b.position.x+b.width,e.velocity.x,e.position.y+e.height,b.position.y,e.position.y,b.position.y+b.height))
                     e.velocity.x = -e.velocity.x
-                // if(checkCollisionLeft(e.position.x,b.position.x+b.width,e.velocity.x,e.position.y+e.height,b.position.y,e.position.y,b.position.y+b.height))
-                //     e.velocity.x = -e.velocity.x
             })
         })
+
+        // Goomba death
+        npc.filter(e => e.id==1 && e.alive==true).forEach(e => {
+            if(checkCollisionDown(player.position.y+player.height,e.position.y,player.velocity.y,player.position.x+player.width,e.position.x,player.position.x,e.position.x+e.width))
+                e.death()
+            if(checkCollisionRight(player.position.x+player.width,e.position.x,player.velocity.x-e.velocity.x,player.position.y+player.height,e.position.y,player.position.y,e.position.y+e.height)
+            || checkCollisionLeft(player.position.x,e.position.x+e.width,player.velocity.x-e.velocity.x,player.position.y+player.height,e.position.y,player.position.y,e.position.y+e.height)
+            || checkCollisionUp(player.position.y,e.position.y+e.height,player.velocity.y-e.velocity.y,player.position.x+player.width,e.position.x,player.position.x,e.position.x+e.width))
+                playerDeath()
+        });
+
+        // Win scenario
         npc.filter(e => e.id==0).forEach(e => {
-            if(checkCollisionDown(player.position.y+player.height,e.position.y,player.velocity.y,player.position.x+player.width,e.position.x,player.position.x,e.position.x+e.width)
-            || checkCollisionRight(player.position.x+player.width,e.position.x,xdiff,player.position.y+player.height,e.position.y,player.position.y,e.position.y+e.height)
-            || checkCollisionLeft(player.position.x,e.position.x+e.width,xdiff,player.position.y+player.height,e.position.y,player.position.y,e.position.y+e.height)
-            || checkCollisionUp(player.position.y,e.position.y+e.height,player.velocity.y,player.position.x+player.width,e.position.x,player.position.x,e.position.x+e.width))
+            if(checkIntersection2D(player.position.x+player.width,e.position.x,player.position.x,e.position.x+e.width,player.position.y+player.height,e.position.y,player.position.y,e.position.y+e.height))
                 playerWin()
         });
     }
@@ -512,7 +558,7 @@ function animate() {
     // Drawing functions
     /* zIndex=-5 */ ctx.clearRect(0,0,canvas.width,canvas.height)
     /* zIndex=-4 */ drawBackground()
-    /* zIndex=-3 */ drawGrid(/* 0.2 */)
+    /* zIndex=-3 */ drawGrid(0.2)
     /* zIndex=-2 */ platforms.forEach(p => p.draw())
     /* zIndex=-1 */ blocks.forEach(b => b.draw())
     /* zIndex=0  */ player.update()
@@ -523,7 +569,11 @@ function animate() {
 }
 
 function MainGame() {
-    waluigi()
+    musicPlay()
     parseLevel()
     animate()
 }
+
+addEventListener('mousedown',(e) => {
+    // console.log('debug')
+})

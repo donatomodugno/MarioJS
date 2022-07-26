@@ -1,11 +1,17 @@
 MarioJS
----
+===
 My first Mario clone in JavaScript
 
-https://donatomodugno.github.io/MarioJS
+Try it: https://donatomodugno.github.io/MarioJS
 
 Changelog
 ---
+* 0.3.4: _Salta che ti passa - parte 2_
+    - Implemented Goombas
+    - Replaced Mario sprite from SMW to All-Stars SMB1
+    - Added SMAS-SMB1 overworld BGM
+    - Added pipes
+    - WASD controls restored, both WASD and arrows are available
 * 0.3.3: _Salta che ti passa - parte 1_
     - Animated Mario walking sprite
     - Added platform width (thanks to Andrea Caruso)

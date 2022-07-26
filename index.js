@@ -119,20 +119,20 @@ window.addEventListener("load",() => {
 })
 
 addEventListener('keydown',({key}) => {
-    switch(key) {
-        case 'ArrowUp':
-            //up
+    switch(true) {
+        //up
+        case key=='ArrowUp' || key=='w':
             keys.up.pressed = true
             break
-        case 'ArrowLeft':
-            //left
+        //left
+        case key=='ArrowLeft' || key=='a':
             keys.left.pressed = true
             break
-        case 'ArrowDown':
-            //down
+        //down
+        case key=='ArrowDown' || key=='s':
             break
-        case 'ArrowRight':
-            //right
+        //right
+        case key=='ArrowRight' || key=='d':
             keys.right.pressed = true
             break
     }
@@ -140,21 +140,21 @@ addEventListener('keydown',({key}) => {
 })
 
 addEventListener('keyup',({key}) => {
-    switch(key) {
-        case 'ArrowUp':
-            //up
+    switch(true) {
+        //up
+        case key=='ArrowUp' || key=='w':
             keys.up.pressed = false
             keys.up.checked = false
             break
-        case 'ArrowLeft':
-            //left
+        //left
+        case key=='ArrowLeft' || key=='a':
             keys.left.pressed = false
             break
-        case 'ArrowDown':
-            //down
+        //down
+        case key=='ArrowDown' || key=='s':
             break
-        case 'ArrowRight':
-            //right
+        //right
+        case key=='ArrowRight' || key=='d':
             keys.right.pressed = false
             break
     }
