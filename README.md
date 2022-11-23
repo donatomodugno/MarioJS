@@ -6,6 +6,12 @@ Try it: https://donatomodugno.github.io/MarioJS
 
 Changelog
 ---
+* 0.3.5: _Mi sono scocciato di trovare nomi per le versioni_
+    - Added ducking player movement
+    - Added fine jumping based on key pressure time
+    - Improved sprite sources importing
+    - Fixed lava sprite filename
+    - Fixed time interval for dead goombas to disappear
 * 0.3.4: _Salta che ti passa - parte 2_
     - Implemented Goombas
     - Replaced Mario sprite from SMW to All-Stars SMB1

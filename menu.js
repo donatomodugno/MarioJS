@@ -45,9 +45,9 @@ class ButtonBlock {
 
     drawBlock() {
         ctx.imageSmoothingEnabled = false
-        ctx.drawImage(spriteblock,0,0,12,32,this.position.x-(this.text.length/2*18*this.centered*this.textzoom+24)*this.zoom,this.position.y-(24+8*this.centered)*this.zoom,24*this.zoom,64*this.zoom)
-        this.text.split("").forEach((c,i) => ctx.drawImage(spriteblock,12,0,10,32,this.position.x+(i-this.text.length/2*this.centered)*18*this.textzoom*this.zoom,this.position.y-(24+8*this.centered)*this.zoom,18*this.zoom*this.textzoom,64*this.zoom))
-        ctx.drawImage(spriteblock,20,0,12,32,this.position.x+(this.text.length/(1+this.centered)*18-2)*this.textzoom*this.zoom,this.position.y-(24+8*this.centered)*this.zoom,24*this.zoom,64*this.zoom)
+        ctx.drawImage(sprites[1],0,0,12,32,this.position.x-(this.text.length/2*18*this.centered*this.textzoom+24)*this.zoom,this.position.y-(24+8*this.centered)*this.zoom,24*this.zoom,64*this.zoom)
+        this.text.split("").forEach((c,i) => ctx.drawImage(sprites[1],12,0,10,32,this.position.x+(i-this.text.length/2*this.centered)*18*this.textzoom*this.zoom,this.position.y-(24+8*this.centered)*this.zoom,18*this.zoom*this.textzoom,64*this.zoom))
+        ctx.drawImage(sprites[1],20,0,12,32,this.position.x+(this.text.length/(1+this.centered)*18-2)*this.textzoom*this.zoom,this.position.y-(24+8*this.centered)*this.zoom,24*this.zoom,64*this.zoom)
     }
 
     checkMouse() {

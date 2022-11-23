@@ -130,6 +130,7 @@ addEventListener('keydown',({key}) => {
             break
         //down
         case key=='ArrowDown' || key=='s':
+            keys.down.pressed = true
             break
         //right
         case key=='ArrowRight' || key=='d':
@@ -152,6 +153,7 @@ addEventListener('keyup',({key}) => {
             break
         //down
         case key=='ArrowDown' || key=='s':
+            keys.down.pressed = false
             break
         //right
         case key=='ArrowRight' || key=='d':

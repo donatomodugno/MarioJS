@@ -3,7 +3,7 @@ const ctx = canvas.getContext('2d')
 canvas.width = innerWidth//1000
 canvas.height = innerHeight//800
 
-const VERSION = "0.3.4"
+const VERSION = "0.3.5"
 const CORNERLABEL = "MarioJS " + VERSION
 const BLOCKSIZE = 32
 const BLOCKCOLS = 24//*32
@@ -28,34 +28,29 @@ const audiojump = new Audio(ASSETPATH+"player-jump.ogg")
 const audiodied = new Audio(ASSETPATH+"player-died.ogg")
 const audiostomp = new Audio(ASSETPATH+"stomped.ogg")
 audiostomp.volume = "0.8"
-const spriteblock = new Image()
-spriteblock.src = ASSETPATH+"SMAS-SMB1-block1.png"
-const spriteground = new Image()
-spriteground.src = ASSETPATH+"SMAS-SMB1-block2.png"
-const spritelava = new Image()
-spritelava.src = ASSETPATH+"SMAS-SMB1-block3.png"
-const spritepipe = new Image()
-spritepipe.src = ASSETPATH+"SMAS-SMB1-block4.png"
-const spritepipetop = new Image()
-spritepipetop.src = ASSETPATH+"SMAS-SMB1-block5.png"
-const spritebridge = new Image()
-spritebridge.src = ASSETPATH+"SMAS-SMB1-bridge.png"
-const spritebgo0 = new Image()
-spritebgo0.src = ASSETPATH+"SMAS-SMB1-bgo1.png"
-const spritebgo1 = new Image()
-spritebgo1.src = ASSETPATH+"SMAS-SMB1-bgo1-1.png"
-const spritebgo2 = new Image()
-spritebgo2.src = ASSETPATH+"SMAS-SMB1-bgo1-2.png"
-const spritemario = new Image()
-spritemario.src = ASSETPATH+"SMAS-SMB1-Mario.png"
-const spritebg1 = new Image()
-spritebg1.src = ASSETPATH+"SMAS-SMB1-bg1-1.png"
-const spritebg2 = new Image()
-spritebg2.src = ASSETPATH+"SMAS-SMB1-bg1-2.png"
-const spritebg3 = new Image()
-spritebg3.src = ASSETPATH+"SMAS-SMB1-bg1-3.png"
-const spritesheet = new Image()
-spritesheet.src = ASSETPATH+"smb1-sheet.png"
+
+const spritenames = [
+    "SMAS-SMB1-Mario",
+    "SMAS-SMB1-block1",
+    "SMAS-SMB1-block2",
+    "SMAS-SMW-block3",
+    "SMAS-SMB1-block4",
+    "SMAS-SMB1-block5",
+    "SMAS-SMB1-bridge",
+    "SMAS-SMB1-bgo1",
+    "SMAS-SMB1-bgo1-1",
+    "SMAS-SMB1-bgo1-2",
+    "SMAS-SMB1-bg1-1",
+    "SMAS-SMB1-bg1-2",
+    "SMAS-SMB1-bg1-3",
+    "SMAS-SMB1-npc0",
+    "SMAS-SMB1-npc1"
+]
+const sprites = []
+spritenames.forEach((s,i) => {
+    sprites[i] = new Image()
+    sprites[i].src = "./assets/"+s+".png"
+})
 
 const font = new Image()
 font.src = ASSETPATH+"font.png"
@@ -71,6 +66,9 @@ const keys = {
     up: {
         pressed:false,
         checked:false
+    },
+    down: {
+        pressed:false
     }
 }
 const mouse = {
@@ -89,5 +87,6 @@ const mouse = {
         y:0
     }
 }
+// let timestamps = []
 let tick = 0
 let isMobile = false

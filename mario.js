@@ -48,9 +48,9 @@ function drawBackground() {
     gradient.addColorStop(1,'#ddf')
     ctx.fillStyle = gradient//'#ddd'
     ctx.fillRect(BX,BY,BW,BH)
-    tiledBackground(spritebg3,0,BLOCKSIZE,64,239,3)
-    infiniteBackground(spritebg2,0,16*3,512,4,4)
-    ctx.drawImage(spritebg1,0,4*13,1792,BH/4,BX-scrollOffset/2,BY,1792*4,BH)
+    tiledBackground(sprites[12],0,BLOCKSIZE,64,239,3)
+    infiniteBackground(sprites[11],0,16*3,512,4,4)
+    ctx.drawImage(sprites[10],0,4*13,1792,BH/4,BX-scrollOffset/2,BY,1792*4,BH)
 }
 
 function clearOutside() {
@@ -93,6 +93,7 @@ class Player {
         this.height = BLOCKSIZE*2-8
         this.jumping = false
         this.colliding = false
+        this.ducking = false
         this.direction = 1
         this.acceleration = ACCELERATION
         this.frames = 1
@@ -126,12 +127,14 @@ class Player {
         if(playerMoving==-1) spriteframe.splice(0,2,4,0,5,0,6,0)
         if(this.jumping && this.direction==1) spriteframe.splice(0,2,0,1)
         if(this.jumping && this.direction==0) spriteframe.splice(0,2,4,1)
+        if(this.ducking && this.direction==1) spriteframe.splice(0,2,0,3)
+        if(this.ducking && this.direction==0) spriteframe.splice(0,2,4,3)
 
-        if(this.frames == 1) ctx.drawImage(spritemario,spriteframe[0]*64,spriteframe[1]*64,32,64,this.position.x,this.position.y-8,32,64)
+        if(this.frames == 1) ctx.drawImage(sprites[0],spriteframe[0]*64,spriteframe[1]*64,32,64,this.position.x,this.position.y-8,32,64)
         else {
             tick%4==0 && this.frame++
             if(this.frame==this.frames) this.frame = 0
-            ctx.drawImage(spritemario,spriteframe[this.frame*2]*64,spriteframe[this.frame*2+1]*64,32,64,this.position.x,this.position.y-8,32,64)
+            ctx.drawImage(sprites[0],spriteframe[this.frame*2]*64,spriteframe[this.frame*2+1]*64,32,64,this.position.x,this.position.y-8,32,64)
         }
     }
 
@@ -151,6 +154,10 @@ class Player {
         this.velocity.x = 0
         if(pos) this.position.x = left ? pos : pos-this.width
         this.colliding = true
+    }
+
+    duck() {
+        this.ducking = true
     }
 
     update() {
@@ -178,11 +185,11 @@ class Platform {
 
     draw() {
         //Bridge
-        for(let i=0;i<this.blocks;i++) ctx.drawImage(spritebridge,this.position.x+i*BLOCKSIZE,this.position.y,BLOCKSIZE,BLOCKSIZE)
+        for(let i=0;i<this.blocks;i++) ctx.drawImage(sprites[6],this.position.x+i*BLOCKSIZE,this.position.y,BLOCKSIZE,BLOCKSIZE)
         //BGO
-        ctx.drawImage(spritebgo1,this.position.x,this.position.y-BLOCKSIZE,BLOCKSIZE,BLOCKSIZE)
-        for(let i=1;i<this.blocks-1;i++) ctx.drawImage(spritebgo0,this.position.x+i*BLOCKSIZE,this.position.y-BLOCKSIZE,BLOCKSIZE,BLOCKSIZE)
-        ctx.drawImage(spritebgo2,this.position.x+(this.blocks-1)*BLOCKSIZE,this.position.y-BLOCKSIZE,BLOCKSIZE,BLOCKSIZE)
+        ctx.drawImage(sprites[8],this.position.x,this.position.y-BLOCKSIZE,BLOCKSIZE,BLOCKSIZE)
+        for(let i=1;i<this.blocks-1;i++) ctx.drawImage(sprites[7],this.position.x+i*BLOCKSIZE,this.position.y-BLOCKSIZE,BLOCKSIZE,BLOCKSIZE)
+        ctx.drawImage(sprites[9],this.position.x+(this.blocks-1)*BLOCKSIZE,this.position.y-BLOCKSIZE,BLOCKSIZE,BLOCKSIZE)
     }
 }
 
@@ -206,23 +213,23 @@ class Block {
     draw() {
         switch(this.id) {
             case 0:
-                ctx.drawImage(spriteblock,this.position.x,this.position.y,this.width,this.height)
+                ctx.drawImage(sprites[1],this.position.x,this.position.y,this.width,this.height)
                 break;
             case 1:
-                ctx.drawImage(spriteground,this.position.x,this.position.y,this.width,this.height)
+                ctx.drawImage(sprites[2],this.position.x,this.position.y,this.width,this.height)
                 break;
             case 2:
                 // ctx.fillStyle = '#c00'
                 // ctx.fillRect(this.position.x,this.position.y,this.width,this.height)
-                ctx.drawImage(spritelava,0,BLOCKSIZE*this.frame,BLOCKSIZE,BLOCKSIZE,this.position.x,this.position.y,this.width,this.height)
+                ctx.drawImage(sprites[3],0,BLOCKSIZE*this.frame,BLOCKSIZE,BLOCKSIZE,this.position.x,this.position.y,this.width,this.height)
                 tick%8==0 && this.frame++
                 if(this.frame==4) this.frame=0
                 break;
             case 3:
-                ctx.drawImage(spritepipe,this.position.x,this.position.y,this.width,this.height)
+                ctx.drawImage(sprites[4],this.position.x,this.position.y,this.width,this.height)
                 break;
             case 4:
-                ctx.drawImage(spritepipetop,this.position.x,this.position.y,this.width,this.height)
+                ctx.drawImage(sprites[5],this.position.x,this.position.y,this.width,this.height)
                 break;
         }
     }
@@ -246,27 +253,30 @@ class NPC {
         this.height = BLOCKSIZE*(id>0 ? 1 : 2)
         this.frame = 0
         this.alive = true
+        this.visible = true
         this.id = id
     }
 
     draw() {
-        switch(this.id) {
-            case 0:
-                // Win
-                ctx.drawImage(spritesheet,8+40*9,-1+40*5,16,32,this.position.x,this.position.y,this.width,this.height)
-                break;
-            case 1:
-                if(this.alive) {
-                    ctx.drawImage(spritesheet,8+40*this.frame,7+40*6,16,16,this.position.x,this.position.y,this.width,this.height)
-                    tick%8==0 && this.frame++
-                    if(this.frame>=2) this.frame=0
-                } else {
-                    this.frame = 2
-                    ctx.drawImage(spritesheet,8+40*this.frame,3+40*6,16,16,this.position.x,this.position.y,this.width,this.height)
-                }
-                break;
-            case 2:
-                break;
+        if(this.visible) {
+            switch(this.id) {
+                case 0:
+                    // Win
+                    ctx.drawImage(sprites[13],0,0,16,32,this.position.x,this.position.y,this.width,this.height)
+                    break;
+                case 1:
+                    if(this.alive) {
+                        ctx.drawImage(sprites[14],0,32*this.frame,32,32,this.position.x,this.position.y,this.width,this.height)
+                        tick%8==0 && this.frame++
+                        if(this.frame>=2) this.frame=0
+                    } else {
+                        this.frame = 2
+                        ctx.drawImage(sprites[14],0,64,32,32,this.position.x,this.position.y,this.width,this.height)
+                    }
+                    break;
+                case 2:
+                    break;
+            }
         }
     }
 
@@ -278,6 +288,7 @@ class NPC {
                 break;
             case 1:
                 audiostomp.play()
+                setTimeout(() => this.visible = false,2000)
                 break;
             case 2:
                 break;
@@ -295,13 +306,16 @@ class NPC {
 }
 
 let player
-const platforms = []
-const blocks = []
-const npc = []
+let platforms = []
+let blocks = []
+let npc = []
 function parseLevel() {
     player = new Player({x:blockCoord(BX,level1.player[0].x),y:blockCoord(BY+BH,level1.player[0].y,true)})
+    platforms = []
+    blocks = []
+    npc = []
     level1.platform.forEach(p => platforms.push(new Platform({x:blockCoord(BX,p.x),y:blockCoord(BY+BH,p.y,true),n:p.n})))
-    level1.block.forEach(b => blocks.push(new Block({x:blockCoord(BX,b.x),y:blockCoord(BY+BH,b.y,true)},b.id,b.id==2 && true,b.width,b.height)))
+    level1.block.forEach(b => blocks.push(new Block({x:blockCoord(BX,b.x),y:blockCoord(BY+BH,b.y,true)},b.id,b.id==2/* && true*/,b.width,b.height)))
     level1.npc.forEach(e => npc.push(new NPC({x:blockCoord(BX,e.x),y:blockCoord(BY+BH,e.y,true)},e.id)))
 }
 let scrollOffset = 0
@@ -323,11 +337,6 @@ function mobileControls() {
     }
 }
 
-function npcDeath(i) {
-    npc[i].alive = false
-    if(tick%8==0) npc.splice(i,1)
-}
-
 function cameraMove() {
     scrollOffset += scrollDirection*SPEED
     platforms.forEach(p => p.position.x -= scrollDirection*SPEED)
@@ -347,27 +356,64 @@ function cameraReset() {
 }
 
 function playerDeath() {
-    musicRestart()
-    cameraReset()
     // alert("Hai perso")
-    player = new Player({x:blockCoord(BX,3),y:blockCoord(BY+BH,14,true)})
     audiodied.play()
-    npc.forEach(e => e.alive = true)
+    musicRestart()
+    parseLevel()
+    scrollOffset = 0
 }
 
 function playerWin() {
     resetKeys()
-    cameraReset()
-    alert('You win!')
-    player = new Player({x:blockCoord(BX,3),y:blockCoord(BY+BH,14,true)})
-    npc.forEach(e => e.alive = true)
+    alert('Thank you Mario but the princess is in another castle!')
     musicRestart()
+    parseLevel()
+    scrollOffset = 0
 }
 
-// addEventListener('mousedown',(e) => {
-//     // console.log('debug')
-//     npcDeath(0)
-// })
+function checkCollisionDown(ya,yb,ydiff,x1a=1,x1b=0,x2a=0,x2b=1) {
+    if(ya<=yb && ya+ydiff>yb)
+        if(x1a>x1b && x2a<x2b)
+            return true
+    return false
+}
+
+function checkCollisionUp(ya,yb,ydiff,x1a,x1b,x2a,x2b) {
+    if(ya>=yb && ya+ydiff<yb)
+        if(x1a>x1b && x2a<x2b)
+            return true
+    return false
+}
+
+function checkCollisionRight(xa,xb,xdiff,y1a,y1b,y2a,y2b) {
+    if(xa<=xb && xa+xdiff>xb)
+        if(y1a>y1b && y2a<y2b)
+            return true
+    return false
+}
+
+function checkCollisionLeft(xa,xb,xdiff,y1a,y1b,y2a,y2b) {
+    if(xa>=xb && xa+xdiff<xb)
+        if(y1a>y1b && y2a<y2b)
+            return true
+    return false
+}
+
+function checkIntersection2D(x1a,x1b,x2a,x2b,y1a,y1b,y2a,y2b) {
+    if(x1a>x1b && x2a<x2b)
+        if(y1a>y1b && y2a<y2b)
+            return true
+    return false
+}
+
+// function polling() {
+//     timestamps.filter(t => t.time<=Date.now()).forEach(t => t.callback())
+//     timestamps = timestamps.filter(t => t.time>Date.now())
+// }
+
+// function delay(millis,callback) {
+//     timestamps.push({time:Date.now()+millis,callback:callback})
+// }
 
 // Main function
 function animate() {
@@ -376,46 +422,14 @@ function animate() {
         requestAnimationFrame(mobileControls)
     }
     tick==63 ? tick = 0 : tick++
+    // if(timestamps.length>0) polling()
+    // console.log(npc.filter(e => e.id==0)[0].position.y)
     
     player.jumping = true
     player.colliding = false
+    player.ducking = false
 
     function checkCollisions() {
-        function checkCollisionDown(ya,yb,ydiff,x1a=1,x1b=0,x2a=0,x2b=1) {
-            if(ya<=yb && ya+ydiff>yb)
-                if(x1a>x1b && x2a<x2b)
-                    return true
-            return false
-        }
-
-        function checkCollisionUp(ya,yb,ydiff,x1a,x1b,x2a,x2b) {
-            if(ya>=yb && ya+ydiff<yb)
-                if(x1a>x1b && x2a<x2b)
-                    return true
-            return false
-        }
-
-        function checkCollisionRight(xa,xb,xdiff,y1a,y1b,y2a,y2b) {
-            if(xa<=xb && xa+xdiff>xb)
-                if(y1a>y1b && y2a<y2b)
-                    return true
-            return false
-        }
-
-        function checkCollisionLeft(xa,xb,xdiff,y1a,y1b,y2a,y2b) {
-            if(xa>=xb && xa+xdiff<xb)
-                if(y1a>y1b && y2a<y2b)
-                    return true
-            return false
-        }
-
-        function checkIntersection2D(x1a,x1b,x2a,x2b,y1a,y1b,y2a,y2b) {
-            if(x1a>x1b && x2a<x2b)
-                if(y1a>y1b && y2a<y2b)
-                    return true
-            return false
-        }
-
         // Fall death
         if(checkCollisionDown(player.position.y+player.height,BY+BH+BLOCKSIZE,player.velocity.y))
             playerDeath()
@@ -545,6 +559,12 @@ function animate() {
             }
         }
         keys.up.checked = true
+    }
+    if(!keys.up.pressed && player.jumping)
+        if(player.velocity.y<0)
+            player.velocity.y+=1
+    if(keys.down.pressed) {
+        player.duck()
     }
 
     // // Win scenario
