@@ -6,6 +6,11 @@ Try it: https://donatomodugno.github.io/MarioJS
 
 Changelog
 ---
+* 0.3.6:
+    - Fixed 60 fps
+    - Goombas improvements
+    - Filename bugfixes
+    - Fixed jumping from mobile control
 * 0.3.5: _Mi sono scocciato di trovare nomi per le versioni_
     - Added ducking player movement
     - Added fine jumping based on key pressure time

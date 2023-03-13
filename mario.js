@@ -288,7 +288,7 @@ class NPC {
                 break;
             case 1:
                 audiostomp.play()
-                setTimeout(() => this.visible = false,2000)
+                setTimeout(() => this.visible = false,1000)
                 break;
             case 2:
                 break;
@@ -418,7 +418,7 @@ function checkIntersection2D(x1a,x1b,x2a,x2b,y1a,y1b,y2a,y2b) {
 // Main function
 function animate() {
     if(running) {
-        requestAnimationFrame(animate)
+        setTimeout(animate,1000/FPS)//requestAnimationFrame(animate)//
         requestAnimationFrame(mobileControls)
     }
     tick==63 ? tick = 0 : tick++
@@ -482,8 +482,10 @@ function animate() {
 
         // Goomba death
         npc.filter(e => e.id==1 && e.alive==true).forEach(e => {
-            if(checkCollisionDown(player.position.y+player.height,e.position.y,player.velocity.y,player.position.x+player.width,e.position.x,player.position.x,e.position.x+e.width))
+            if(checkCollisionDown(player.position.y+player.height,e.position.y,player.velocity.y,player.position.x+player.width,e.position.x,player.position.x,e.position.x+e.width)) {
                 e.death()
+                player.velocity.y = JUMP/2
+            }
             if(checkCollisionRight(player.position.x+player.width,e.position.x,player.velocity.x-e.velocity.x,player.position.y+player.height,e.position.y,player.position.y,e.position.y+e.height)
             || checkCollisionLeft(player.position.x,e.position.x+e.width,player.velocity.x-e.velocity.x,player.position.y+player.height,e.position.y,player.position.y,e.position.y+e.height)
             || checkCollisionUp(player.position.y,e.position.y+e.height,player.velocity.y-e.velocity.y,player.position.x+player.width,e.position.x,player.position.x,e.position.x+e.width))
@@ -560,7 +562,7 @@ function animate() {
         }
         keys.up.checked = true
     }
-    if(!keys.up.pressed && player.jumping)
+    if(!isMobile && !keys.up.pressed && player.jumping)
         if(player.velocity.y<0)
             player.velocity.y+=1
     if(keys.down.pressed) {

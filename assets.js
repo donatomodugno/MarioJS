@@ -3,8 +3,9 @@ const ctx = canvas.getContext('2d')
 canvas.width = innerWidth//1000
 canvas.height = innerHeight//800
 
-const VERSION = "0.3.5"
+const VERSION = "0.3.6"
 const CORNERLABEL = "MarioJS " + VERSION
+const FPS = 60*2
 const BLOCKSIZE = 32
 const BLOCKCOLS = 24//*32
 const BLOCKROWS = 18//*24
